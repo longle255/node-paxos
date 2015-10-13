@@ -1,0 +1,41 @@
+{
+  "name": "node-paxos",
+  "version": "0.0.1",
+  "description": "NodeJs implementation of Paxos",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --compilers js:babel/register test/**/*.test.js -t 10000 --ui bdd -R spec",
+    "coverage": "./node_modules/babel/bin/babel-node.js ./node_modules/isparta/bin/isparta cover ./node_modules/mocha/bin/_mocha -- --compilers js:babel/register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/longle255/node-paxos.git"
+  },
+  "keywords": [
+    "paxos",
+    "nodejs",
+    "multicast"
+  ],
+  "author": "longle255 <hoanglong25588@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/longle255/node-paxos/issues"
+  },
+  "homepage": "https://github.com/longle255/node-paxos#readme",
+  "dependencies": {
+    "babel": "^5.8.23",
+    "bluebird": "^2.10.2",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "assertion-error": "^1.0.1",
+    "babel-core": "^5.8.25",
+    "babel-eslint": "^4.1.3",
+    "chai": "^3.3.0",
+    "deep-eql": "^0.1.3",
+    "isparta": "^3.1.0",
+    "istanbul": "^0.3.22",
+    "mocha": "^2.3.3",
+    "type-detect": "^1.0.0"
+  }
+}

@@ -1,0 +1,6 @@
+--require chai
+--reporter spec
+--ui bdd
+--timeout 10000
+--compilers js:babel/register
+--recursive

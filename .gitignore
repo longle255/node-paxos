@@ -1,4 +1,5 @@
 node_modules
+shippable/
 .DS_Store
 .vagrant
 coverage

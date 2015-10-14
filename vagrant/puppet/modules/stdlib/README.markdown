@@ -224,7 +224,7 @@ Converts the case of a string or of all strings in an array to lowercase. *Type*
 
 #### `empty`
 
-Returns 'true' if the variable is empty. *Type*: rvalue.
+Returns true if the argument is an array or hash that contains no elements, or an empty string. Returns false when the argument is a numerical value. *Type*: rvalue.
 
 #### `ensure_packages`
 
@@ -403,6 +403,29 @@ Converts an array into a hash. For example, `hash(['a',1,'b',2,'c',3])` returns 
 
 Returns an array an intersection of two. For example, `intersection(["a","b","c"],["b","c","d"])` returns ["b","c"]. *Type*: rvalue.
 
+#### `is_a`
+
+Boolean check to determine whether a variable is of a given data type. This is equivalent to the `=~` type checks. This function is only available in Puppet 4, or when using the "future" parser. 
+
+  ~~~
+  foo = 3
+  $bar = [1,2,3]
+  $baz = 'A string!'
+
+  if $foo.is_a(Integer) {
+    notify  { 'foo!': }
+  }
+  if $bar.is_a(Array) {
+    notify { 'bar!': }
+  }
+  if $baz.is_a(String) {
+    notify { 'baz!': }
+  }
+  ~~~
+
+See the documentation for "The Puppet Type System" for more information about types.
+See the `assert_type()` function for flexible ways to assert the type of a value.
+
 #### `is_array`
 
 Returns 'true' if the variable passed to this function is an array. *Type*: rvalue.
@@ -521,10 +544,12 @@ Converts a number or a string representation of a number into a true boolean. Ze
 #### `parsejson`
 
 Converts a string of JSON into the correct Puppet structure. *Type*: rvalue.
+The optional second argument will be returned if the data was not correct.
 
 #### `parseyaml`
 
 Converts a string of YAML into the correct Puppet structure. *Type*: rvalue.
+The optional second argument will be returned if the data was not correct.
 
 #### `pick`
 
@@ -623,7 +648,7 @@ Returns a new string where runs of the same character that occur in this set are
 
 #### `str2bool`
 
-Converts a string to a boolean. This attempts to convert strings that contain values such as '1', 't', 'y', and 'yes' to 'true' and strings that contain values such as '0', 'f', 'n', and 'no' to 'false'. *Type*: rvalue.
+Converts a string to a boolean regardless of case. This attempts to convert strings that contain values such as '1', 't', 'y', 'Y', 'YES','yes', and 'TRUE' to 'true' and strings that contain values such as '0', 'f','F', 'N','n', 'NO','FALSE', and 'no' to 'false'. *Type*: rvalue.  
 
 #### `str2saltedsha512`
 
@@ -706,12 +731,18 @@ Converts the argument into bytes, for example "4 kB" becomes "4096". Takes a sin
 
 *Type*: rvalue.
 
-Looks up into a complex structure of arrays and hashes and returns a value
-or the default value if nothing was found.
+Looks up into a complex structure of arrays and hashes to extract a value by
+its path in the structure. The path is a string of hash keys or array indexes
+starting with zero, separated by the path separator character (default "/").
+The function will go down the structure by each path component and will try to
+return the value at the end of the path.
 
-Key can contain slashes to describe path components. The function will go down
-the structure and try to extract the required value.
+In addition to the required "path" argument the function accepts the default
+argument. It will be returned if the path is not correct, no value was found or
+a any other error have occurred. And the last argument can set the path
+separator character.
 
+```ruby
 $data = {
   'a' => {
     'b' => [
@@ -722,19 +753,28 @@ $data = {
   }
 }
 
+$value = try_get_value($data, 'a/b/2')
+# $value = 'b3'
+
+# with all possible options
 $value = try_get_value($data, 'a/b/2', 'not_found', '/')
-=> $value = 'b3'
+# $value = 'b3'
 
-a -> first hash key
-b -> second hash key
-2 -> array index starting with 0
+# using the default value
+$value = try_get_value($data, 'a/b/c/d', 'not_found')
+# $value = 'not_found'
 
-not_found -> (optional) will be returned if there is no value or the path did not match. Defaults to nil.
-/ -> (optional) path delimiter. Defaults to '/'.
+# using custom separator
+$value = try_get_value($data, 'a|b', [], '|')
+# $value = ['b1','b2','b3']
+```
 
-In addition to the required "key" argument, "try_get_value" accepts default
-argument. It will be returned if no value was found or a path component is
-missing. And the fourth argument can set a variable path separator.
+1. **$data** The data structure we are working with.
+2. **'a/b/2'** The path string.
+3. **'not_found'** The default value. It will be returned if nothing is found.
+   (optional, defaults to *undef*)
+4. **'/'** The path separator character.
+   (optional, defaults to *'/'*)
 
 #### `type3x`
 
@@ -1012,6 +1052,13 @@ test, and the second argument should be a stringified regular expression (withou
 
   ~~~
   validate_re($::puppetversion, '^2.7', 'The $puppetversion fact value does not match 2.7')
+  ~~~
+
+  Note: Compilation will also abort, if the first argument is not a String. Always use
+  quotes to force stringification:
+
+  ~~~
+  validate_re("${::operatingsystemmajrelease}", '^[57]$')
   ~~~
 
 *Type*: statement.

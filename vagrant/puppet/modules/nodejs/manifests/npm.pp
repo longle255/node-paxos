@@ -1,76 +1,81 @@
-# See README.md for usage information.
+# Define: nodejs::npm
+#
+# Parameters:
+#
+# Actions:
+#
+# Requires:
+#
+# Usage:
+#
 define nodejs::npm (
-  $target,
-  $ensure            = 'present',
-  $cmd_exe_path      = $nodejs::cmd_exe_path,
-  $install_options   = [],
-  $npm_path          = $nodejs::npm_path,
-  $package           = $title,
-  $source            = 'registry',
-  $uninstall_options = [],
-  $user              = undef,
+  $ensure       = present,
+  $version      = undef,
+  $source       = undef,
+  $install_opt  = undef,
+  $remove_opt   = undef,
+  $exec_as_user = undef
 ) {
+  include nodejs
 
-  validate_re($ensure, '^[^<>=]', "The ${module_name}::npm defined type does not accept version ranges")
-  validate_array($install_options)
-  validate_string($package)
-  validate_absolute_path($target)
-  validate_array($uninstall_options)
+  $npm = split($name, ':')
+  $npm_dir = $npm[0]
+  $npm_pkg = $npm[1]
 
-  $install_options_string = join($install_options, ' ')
-  $uninstall_options_string = join($uninstall_options, ' ')
-
-  # Note that install_check will always return false when a remote source is
-  # provided
-  if $source != 'registry' {
-    $install_check_package_string = $source
-    $package_string = $source
-  } elsif $ensure =~ /^(present|absent)$/ {
-    $install_check_package_string = $package
-    $package_string = $package
+  if $source {
+    $install_pkg = $source
+  } elsif $version {
+    $install_pkg = "${npm_pkg}@${version}"
   } else {
-  # ensure is either a tag, version or 'latest'
-  # Note that install_check will always return false when 'latest' or a tag is
-  # provided
-  # npm ls does not keep track of tags after install
-    $install_check_package_string = "${package}:${package}@${ensure}"
-    $package_string = "${package}@${ensure}"
+    $install_pkg = $npm_pkg
   }
 
-  $grep_command = $::osfamily ? {
-    'Windows' => "${cmd_exe_path} /c findstr /l",
-    default   => 'grep',
+  if $version {
+    $validate = "${npm_dir}/node_modules/${npm_pkg}:${npm_pkg}@${version}"
+  } else {
+    $validate = "${npm_dir}/node_modules/${npm_pkg}"
   }
 
-  $install_check = $::osfamily ? {
-    'Windows' => "${npm_path} ls --long --parseable | ${grep_command} \"${target}\\node_modules\\${install_check_package_string}\"",
-    default   => "${npm_path} ls --long --parseable | ${grep_command} \"${target}/node_modules/${install_check_package_string}\"",
-  }
-
-  if $ensure == 'absent' {
-    $npm_command = 'rm'
-    $options = $uninstall_options_string
-
-    exec { "npm_${npm_command}_${name}":
-      command => "${npm_path} ${npm_command} ${package_string} ${options}",
-      onlyif  => $install_check,
-      user    => $user,
-      cwd     => $target,
-      require => Class['nodejs'],
+  # exec_as_user allows to install an npm package only for a certain user
+  # exec environment depends on exec user
+  if $exec_as_user == undef {
+    # if exec user is undefined, exec environment should not be set, so the package will get installed globally
+    $exec_env = undef
+  } else {
+    # if exec user is defined, exec environment depends on the operating system
+    case $::operatingsystem {
+      'Debian','Ubuntu','RedHat','SLEL','Fedora','CentOS': {
+        $exec_env = "HOME=/home/${exec_as_user}"
+      }
+      default: {
+        # so far only linux systems are supported with this option
+        fail('unsupported operating system')
+      }
     }
-  } else {
-    $npm_command = 'install'
-    $options = $install_options_string
-    # Conditionally require proxy and https-proxy to be set first only if the resource exists.
-    Nodejs::Npm::Global_config_entry<| title == 'https-proxy' |> -> Exec["npm_install_${name}"]
-    Nodejs::Npm::Global_config_entry<| title == 'proxy' |> -> Exec["npm_install_${name}"]
+  }
 
-    exec { "npm_${npm_command}_${name}":
-      command => "${npm_path} ${npm_command} ${package_string} ${options}",
-      unless  => $install_check,
-      user    => $user,
-      cwd     => $target,
-      require => Class['nodejs'],
+  if $ensure == present {
+    exec { "npm_install_${name}":
+      command     => "npm install ${install_opt} ${install_pkg}",
+      unless      => "npm list -p -l | grep '${validate}'",
+      cwd         => $npm_dir,
+      path        => $::path,
+      require     => Class['nodejs'],
+      user        => $exec_as_user,
+      environment => $exec_env,
+    }
+
+    # Conditionally require npm_proxy only if resource exists.
+    Exec<| title=='npm_proxy' |> -> Exec["npm_install_${name}"]
+  } else {
+    exec { "npm_remove_${name}":
+      command     => "npm remove ${npm_pkg}",
+      onlyif      => "npm list -p -l | grep '${validate}'",
+      cwd         => $npm_dir,
+      path        => $::path,
+      require     => Class['nodejs'],
+      user        => $exec_as_user,
+      environment => $exec_env,
     }
   }
 }

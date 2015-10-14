@@ -4,8 +4,10 @@
   "description": "NodeJs implementation of Paxos",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --compilers js:babel/register -t 10000 --ui bdd -R spec --recursive",
-    "coverage": "./node_modules/babel/bin/babel-node.js ./node_modules/isparta/bin/isparta cover ./node_modules/mocha/bin/_mocha -- --compilers js:babel/register"
+    "coverage": "./node_modules/babel/bin/babel-node.js ./node_modules/isparta/bin/isparta cover ./node_modules/mocha/bin/_mocha -- --opts test/.mocha",
+    "test": "./node_modules/mocha/bin/mocha --opts test/.mocha",
+    "test-shippable": "mkdir -p shippable/testresults && ./node_modules/mocha/bin/mocha --compilers js:babel/register -t 10000 --ui bdd --recursive --reporter xunit ./test/* > shippable/testresults/result.xml",
+    "coverage-shippable": "mkdir -p shippable/codecoverage &&  ./node_modules/babel/bin/babel-node.js ./node_modules/isparta/bin/isparta cover --report cobertura --dir shippable/codecoverage ./node_modules/mocha/bin/_mocha -- --compilers js:babel/register -t 10000 --ui bdd --recursive"
   },
   "repository": {
     "type": "git",

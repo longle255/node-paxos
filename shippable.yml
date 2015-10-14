@@ -1,5 +1,5 @@
 node_js:
-   - "0.12.7"
+   - "0.12"
 language: node_js
 before_script:
   - mkdir -p shippable/codecoverage

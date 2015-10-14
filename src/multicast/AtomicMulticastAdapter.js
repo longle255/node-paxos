@@ -1,8 +1,8 @@
 import MulticastAdapterInterface from './MulticastAdapterInterface';
-import log from 'winston';
+let logger = NodePaxos.logger.getLogger('multicast');
 
 export default class AtomicMulticastAdapter extends MulticastAdapterInterface {
   multicast(dest, message) {
-    log.info('AtomicMulticastAdapter multicast method called');
+    logger.info('AtomicMulticastAdapter multicast method called');
   }
 }

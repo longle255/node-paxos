@@ -3,4 +3,3 @@ shippable/
 .DS_Store
 .vagrant
 coverage/
-output.log

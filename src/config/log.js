@@ -1,4 +1,5 @@
 import winston from 'winston';
+import _ from 'lodash';
 
 winston.setLevels({
   debug: 0,
@@ -23,10 +24,19 @@ winston.add(winston.transports.Console, {
   colorize: true
 });
 
-winston.add(winston.transports.File, {
-  filename: 'output.log',
-  level: 'debug',
-  colorize: true
-});
+/**
+ * get logger for specific category
+ * @param  {string} category category tag will be appended to logging line
+ * @return {logger} logger instance
+ */
+winston.getLogger = (category) => {
+  return winston.loggers.get(category);
+};
 
-export default winston;
+export default (configFile) => {
+  let configs = require(configFile);
+  _.each(configs, (config) => {
+    winston.loggers.add(config.module, config.options);
+  });
+  return winston;
+};

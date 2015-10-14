@@ -1,0 +1,61 @@
+[{
+  "module": "multicast",
+  "options": {
+    "console": {
+      "level": "debug",
+      "colorize": true,
+      "label": "MULTICAST"
+    },
+    "file": {
+      "filename": "./logs/multicast.log"
+    }
+  }
+}, {
+  "module": "acceptor",
+  "options": {
+    "console": {
+      "level": "debug",
+      "colorize": true,
+      "label": "ACCEPTOR"
+    },
+    "file": {
+      "filename": "./logs/acceptor.log"
+    }
+  }
+}, {
+  "module": "leaner",
+  "options": {
+    "console": {
+      "level": "debug",
+      "colorize": true,
+      "label": "LEARNER"
+    },
+    "file": {
+      "filename": "./logs/leaner.log"
+    }
+  }
+}, {
+  "module": "proposer",
+  "options": {
+    "console": {
+      "level": "debug",
+      "colorize": true,
+      "label": "PROPOSER"
+    },
+    "file": {
+      "filename": "./logs/proposer.log"
+    }
+  }
+}, {
+  "module": "leader",
+  "options": {
+    "console": {
+      "level": "debug",
+      "colorize": true,
+      "label": "LEADER"
+    },
+    "file": {
+      "filename": "./logs/leader.log"
+    }
+  }
+}]

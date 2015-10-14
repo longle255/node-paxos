@@ -82,7 +82,7 @@ rules:
     no-with: 2
     quotes: [2, "single"]
     radix: 2
-    require-jsdoc: 2
+    require-jsdoc: 0
     semi: 2
     semi-spacing: [2, {before: false, after: true}]
     space-after-keywords: [2, "always"]
@@ -109,3 +109,4 @@ rules:
     handle-callback-err: [2, "err"]
 
 globals:
+    NodePaxos: true

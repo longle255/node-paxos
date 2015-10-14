@@ -3,7 +3,8 @@
 Node implementation of Paxos
 
 ## Build status
-<div style="text-align:center"><img src ="https://codeship.com/projects/YOUR_PROJECT_UUID/status?branch=master" /></div>
+![Shippable Build Status](https://img.shields.io/shippable/561e1cc91895ca44741db999.svg "Build Status")
+
 
 ## Development
 

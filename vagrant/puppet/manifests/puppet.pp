@@ -6,11 +6,6 @@ class apt_update {
 }
 
 class othertools {
-  package { "git":
-    ensure => latest,
-    require => Exec["aptGetUpdate"]
-  }
-
   package { "vim-common":
     ensure => latest,
     require => Exec["aptGetUpdate"]
@@ -36,6 +31,12 @@ class { 'nodejs':
   version => 'stable',
 }
 
+class { 'ohmyzsh': }
+
+ohmyzsh::install { 'vagrant': }
+
 include apt_update
 include othertools
 include nodejs
+include ohmyzsh
+

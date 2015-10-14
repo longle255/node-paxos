@@ -1,7 +1,8 @@
 import MulticastAdapterInterface from './MulticastAdapterInterface';
+import log from 'winston';
 
 export default class AtomicMulticastAdapter extends MulticastAdapterInterface {
   multicast(dest, message) {
-    console.log('AtomicMulticastAdapter multicast method called');
+    log.info('AtomicMulticastAdapter multicast method called');
   }
 }

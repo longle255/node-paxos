@@ -11,7 +11,7 @@
     }
   }
 }, {
-  "module": "acceptor",
+  "module": "acceptors",
   "options": {
     "console": {
       "level": "debug",
@@ -19,11 +19,11 @@
       "label": "ACCEPTOR"
     },
     "file": {
-      "filename": "./logs/acceptor.log"
+      "filename": "./logs/acceptors.log"
     }
   }
 }, {
-  "module": "leaner",
+  "module": "leaners",
   "options": {
     "console": {
       "level": "debug",
@@ -31,11 +31,11 @@
       "label": "LEARNER"
     },
     "file": {
-      "filename": "./logs/leaner.log"
+      "filename": "./logs/leaners.log"
     }
   }
 }, {
-  "module": "proposer",
+  "module": "proposers",
   "options": {
     "console": {
       "level": "debug",
@@ -43,11 +43,11 @@
       "label": "PROPOSER"
     },
     "file": {
-      "filename": "./logs/proposer.log"
+      "filename": "./logs/proposers.log"
     }
   }
 }, {
-  "module": "leader",
+  "module": "leaders",
   "options": {
     "console": {
       "level": "debug",
@@ -55,7 +55,7 @@
       "label": "LEADER"
     },
     "file": {
-      "filename": "./logs/leader.log"
+      "filename": "./logs/leaders.log"
     }
   }
 }]

@@ -1,0 +1,21 @@
+[{
+  "host": "239.0.0.1",
+  "port": 5000,
+  "module": "acceptors"
+}, {
+  "host": "239.0.0.1",
+  "port": 6000,
+  "module": "proposers"
+}, {
+  "host": "239.0.0.1",
+  "port": 7000,
+  "module": "learners"
+}, {
+  "host": "239.0.0.1",
+  "port": 8000,
+  "module": "leaders"
+}, {
+  "host": "239.0.0.1",
+  "port": 9000,
+  "module": "coordinators"
+}]

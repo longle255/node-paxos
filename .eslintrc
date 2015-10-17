@@ -33,7 +33,7 @@ rules:
     new-parens: 2
     no-alert: 2
     no-array-constructor: 2
-    no-caller: 2
+    no-caller: 0
     no-console: 0
     no-delete-var: 2
     no-empty-label: 2

@@ -1,6 +1,6 @@
 import winston from 'winston';
 import _ from 'lodash';
-
+import path from 'path'
 winston.setLevels({
   debug: 0,
   info: 1,
@@ -25,17 +25,35 @@ winston.add(winston.transports.Console, {
 });
 
 /**
- * get logger for specific category
- * @param  {string} category category tag will be appended to logging line
+ * get logger for specific module
+ * @param  {string} module module tag will be appended to logging line
  * @return {logger} logger instance
  */
-winston.getLogger = (category) => {
-  return winston.loggers.get(category);
+winston.getLogger = module => {
+  if (typeof module === 'string') {
+    if (winston.loggerConfigs[module]) {
+      return winston.loggers.get(module);
+    }
+  } else {
+    module = path.basename(module.filename);
+  }
+  winston.loggers.add(module, {
+    'console': {
+      level: 'debug',
+      colorize: true,
+      label: module
+    },
+    'file': {
+      'filename': './logs/output.log'
+    }
+  });
+  return winston.loggers.get(module);
 };
 
-export default (configFile) => {
-  let configs = require(configFile);
-  _.each(configs, (config) => {
+export default (configs) => {
+  winston.loggerConfigs = {};
+  _.each(configs, config => {
+    winston.loggerConfigs[config.module] = config;
     winston.loggers.add(config.module, config.options);
   });
   return winston;

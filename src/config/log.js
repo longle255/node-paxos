@@ -1,6 +1,6 @@
 import winston from 'winston';
-import _ from 'lodash';
-import path from 'path'
+import path from 'path';
+
 winston.setLevels({
   debug: 0,
   info: 1,
@@ -39,7 +39,7 @@ winston.getLogger = module => {
   }
   winston.loggers.add(module, {
     'console': {
-      level: 'debug',
+      level: process.env.PAXOS_LOG || 'info',
       colorize: true,
       label: module
     },
@@ -50,11 +50,10 @@ winston.getLogger = module => {
   return winston.loggers.get(module);
 };
 
-export default (configs) => {
-  winston.loggerConfigs = {};
-  _.each(configs, config => {
-    winston.loggerConfigs[config.module] = config;
-    winston.loggers.add(config.module, config.options);
-  });
-  return winston;
-};
+winston.loggerConfigs = {};
+_.each(NodePaxos.config.logger, config => {
+  winston.loggerConfigs[config.module] = config;
+  winston.loggers.add(config.module, config.options);
+});
+
+NodePaxos.logger = winston;

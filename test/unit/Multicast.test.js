@@ -1,8 +1,5 @@
 import chai from 'chai';
-import {
-  MulticastReceiver, MulticastSender
-}
-from '../../src/Multicast';
+import Multicast from '../../src/Multicast';
 
 var logger = NodePaxos.logger.getLogger(module);
 var multicastReceiver, multicastSender;
@@ -14,8 +11,8 @@ var testingGroup = {
 
 describe('Multicast test suite', () => {
   it('should be able to init multicastReceiver and multicastSender', () => {
-    multicastReceiver = new MulticastReceiver(testingGroup);
-    multicastSender = new MulticastSender(testingGroup);
+    multicastReceiver = new Multicast.Receiver(testingGroup);
+    multicastSender = new Multicast.Sender(testingGroup);
   });
 
   it('should be able to add listener', () => {

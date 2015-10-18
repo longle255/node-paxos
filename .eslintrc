@@ -110,3 +110,5 @@ rules:
 
 globals:
     NodePaxos: true
+    _: true
+    Promise: true

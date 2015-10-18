@@ -27,7 +27,9 @@
   "dependencies": {
     "babel": "^5.8.23",
     "bluebird": "^2.10.2",
+    "commander": "^2.9.0",
     "lodash": "^3.10.1",
+    "node-uuid": "^1.4.3",
     "winston": "^1.1.0"
   },
   "devDependencies": {

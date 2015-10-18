@@ -1,9 +1,9 @@
 import dgram from 'dgram';
-let logger = NodePaxos.logger.getLogger('Multicast');
+let logger = NodePaxos.logger.getLogger('multicast');
 
-export class MulticastReceiver {
+export class Receiver {
   constructor(options) {
-    logger.debug('starting MulticastReceiver component ', options);
+    logger.debug('starting Receiver component ', options);
     this.config = {
       host: options.host,
       port: options.port
@@ -46,7 +46,7 @@ export class MulticastReceiver {
     return new Promise((resolve, reject) => {
       try {
         this.server.bind(this.config.port, () => {
-          logger.info(`MulticastReceiver bind success on ${this.config.host}:${this.config.port}`);
+          logger.info(`Receiver bind success on ${this.config.host}:${this.config.port}`);
           this.server.addMembership(this.config.host);
           this.isRunning = true;
           resolve();
@@ -58,9 +58,9 @@ export class MulticastReceiver {
   }
 }
 
-export class MulticastSender {
+export class Sender {
   constructor(options) {
-    logger.debug('starting MulticastSender component ', options);
+    logger.debug('starting Sender component ', options);
     this.config = {
       host: options.host,
       port: options.port,
@@ -78,7 +78,7 @@ export class MulticastSender {
       try {
         this.server.bind(this.config.port, () => {
           logger.info('server bind success');
-          logger.info(`MulticastSender bind success on ${this.config.host}:${this.config.port}`);
+          logger.info(`Sender bind success on ${this.config.host}:${this.config.port}`);
           this.server.setBroadcast(true);
           this.server.setMulticastTTL(128);
           this.isRunning = true;

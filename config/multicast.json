@@ -5,15 +5,11 @@
 }, {
   "host": "239.0.0.1",
   "port": 6000,
-  "module": "proposers"
+  "module": "clients"
 }, {
   "host": "239.0.0.1",
   "port": 7000,
   "module": "learners"
-}, {
-  "host": "239.0.0.1",
-  "port": 8000,
-  "module": "leaders"
 }, {
   "host": "239.0.0.1",
   "port": 9000,

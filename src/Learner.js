@@ -18,7 +18,11 @@ export default class Learner {
   }
 
   start() {
-    setInterval(() => logger.info(`learned ${this.receivedMessages} proposed value`), 1000);
+    var tmp = 0;
+    setInterval(() => {
+      logger.info(`rate ${this.receivedMessages - tmp} - ${this.receivedMessages} proposed value`);
+      tmp = this.receivedMessages;
+    }, 1000);
     return Promise.all([this.socket.listener.start()]);
   }
 

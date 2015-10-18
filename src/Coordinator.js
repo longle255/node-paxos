@@ -39,7 +39,9 @@ export default class Coordinator {
   onClientRequest(message, source) {
     logger.debug(`receive propose message ${JSON.stringify(message)} from ${source.host}:${source.port}`);
     this.messageQueue.push(message);
-    this.sendPrepare();
+    if (this.currentIndex < this.messageQueue.length) {
+      this.sendPrepare();
+    }
   }
 
   onAcceptorPromise(message, source) {
@@ -131,7 +133,10 @@ export default class Coordinator {
     logger.debug(`sending deliver message [${deliver.type} | ${deliver.data.votedValue}]`);
     this.socket.learnerSender.broadcast(deliver);
 
-    //set index to next message
+    // set index to next message
     this.currentIndex++;
+    if (this.currentIndex < this.messageQueue.length) {
+      this.sendPrepare();
+    }
   }
 }

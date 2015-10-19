@@ -47,7 +47,7 @@ export default program => {
           // var x = Math.floor(Math.random() * (10000 - 1 + 1)) + 1;
           x += 1;
           client.propose(x);
-        }, 1);
+        }, 1000);
       });
       break;
     default:

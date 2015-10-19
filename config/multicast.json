@@ -1,17 +1,17 @@
 [{
-  "host": "239.0.0.1",
+  "address": "239.0.0.1",
   "port": 5000,
   "module": "acceptors"
 }, {
-  "host": "239.0.0.1",
+  "address": "239.0.0.1",
   "port": 6000,
   "module": "clients"
 }, {
-  "host": "239.0.0.1",
+  "address": "239.0.0.1",
   "port": 7000,
   "module": "learners"
 }, {
-  "host": "239.0.0.1",
+  "address": "239.0.0.1",
   "port": 9000,
   "module": "coordinators"
 }]

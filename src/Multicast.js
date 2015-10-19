@@ -5,7 +5,7 @@ export class Receiver {
   constructor(options) {
     logger.debug('starting Receiver component ', options);
     this.config = {
-      host: options.host,
+      address: options.address,
       port: options.port
     };
 
@@ -29,6 +29,7 @@ export class Receiver {
 
     this.server.on('message', (msg, rinfo) => {
       logger.debug(`got message ${msg} from group ${rinfo.address}:${rinfo.port}`);
+      logger.debug(rinfo);
       let message = msg.toString('utf8');
       try {
         message = JSON.parse(message);
@@ -46,8 +47,8 @@ export class Receiver {
     return new Promise((resolve, reject) => {
       try {
         this.server.bind(this.config.port, () => {
-          logger.info(`Receiver bind success on ${this.config.host}:${this.config.port}`);
-          this.server.addMembership(this.config.host);
+          logger.info(`Receiver bind success on ${this.config.address}:${this.config.port}`);
+          this.server.addMembership(this.config.address);
           this.isRunning = true;
           resolve();
         });
@@ -62,7 +63,7 @@ export class Sender {
   constructor(options) {
     logger.debug('starting Sender component ', options);
     this.config = {
-      host: options.host,
+      address: options.address,
       port: options.port,
       destinationGroup: options.destinationGroup
     };
@@ -78,7 +79,7 @@ export class Sender {
       try {
         this.server.bind(this.config.port, () => {
           logger.info('server bind success');
-          logger.info(`Sender bind success on ${this.config.host}:${this.config.port}`);
+          logger.info(`Sender bind success on ${this.config.address}:${this.config.port}`);
           this.server.setBroadcast(true);
           this.server.setMulticastTTL(128);
           this.isRunning = true;
@@ -113,7 +114,21 @@ export class Sender {
     }
 
     var serializedMessage = new Buffer(JSON.stringify(message));
-    this.server.send(serializedMessage, 0, serializedMessage.length, dest.port, dest.host);
-    logger.debug(`sent message ${message} to the group ${dest.host}:${dest.port}`);
+    this.server.send(serializedMessage, 0, serializedMessage.length, dest.port, dest.address);
+    logger.debug(`broadcast message ${message} to the group ${dest.address}:${dest.port}`);
+  }
+
+  send(dest, message) {
+    if (!this.isRunning) {
+      logger.error('service is not running');
+      throw new Error('service is not running');
+    }
+    if (arguments.length < 2) {
+      logger.error('requires 2 arguments');
+      throw new Error('requires 2 arguments');
+    }
+    var serializedMessage = new Buffer(JSON.stringify(message));
+    this.server.send(serializedMessage, 0, serializedMessage.length, dest.port, dest.address);
+    logger.debug(`send message ${message} to the destination ${dest.address}:${dest.port}`);
   }
 }

@@ -20,7 +20,7 @@ export default class Client {
   }
 
   propose(message) {
-    logger.debug(`proposing value ${message}`);
+    logger.info(`proposing value ${message}`);
     this.socket.sender.broadcast({
       type: 'propose',
       data: message

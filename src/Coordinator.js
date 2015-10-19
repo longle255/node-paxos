@@ -37,15 +37,13 @@ export default class Coordinator {
   }
 
   onClientRequest(message, source) {
-    logger.debug(`receive propose message ${JSON.stringify(message)} from ${source.host}:${source.port}`);
+    logger.debug(`receive propose message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
     this.messageQueue.push(message);
-    if (this.currentIndex < this.messageQueue.length) {
-      this.sendPrepare();
-    }
+    this.processingQueue();
   }
 
   onAcceptorPromise(message, source) {
-    logger.debug(`receive promise message ${JSON.stringify(message)} from ${source.host}:${source.port}`);
+    logger.debug(`receive promise message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
 
     // store promise of all acceptor
     this.payload[message.proposeId] = this.payload[message.proposeId] || {
@@ -132,9 +130,12 @@ export default class Coordinator {
     };
     logger.debug(`sending deliver message [${deliver.type} | ${deliver.data.votedValue}]`);
     this.socket.learnerSender.broadcast(deliver);
-
     // set index to next message
     this.currentIndex++;
+    this.processingQueue();
+  }
+
+  processingQueue() {
     if (this.currentIndex < this.messageQueue.length) {
       this.sendPrepare();
     }

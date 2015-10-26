@@ -51,7 +51,7 @@ class { 'nodejs':
 # }
 include apt_update
 include othertools
-include ohmyzsh
+# include ohmyzsh
 include nodejs
-include updateZsh
+# include updateZsh
 

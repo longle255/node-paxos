@@ -2,7 +2,7 @@
   "module": "multicast",
   "options": {
     "console": {
-      "level": "debug",
+      "level": "info",
       "colorize": true,
       "label": "MULTICAST"
     },

@@ -1,4 +1,36 @@
 {
   "totalProcesses": 3,
-  "quorum": 2
+  "quorum": 2,
+  "coordinators": [{
+    "address": "localhost",
+    "port": 10001,
+    "pid": 10001
+  }],
+  "acceptors": [{
+    "address": "localhost",
+    "port": 10011,
+    "pid": 10011
+  }, {
+    "address": "localhost",
+    "port": 10012,
+    "pid": 10012
+  }],
+  "learners": [{
+    "address": "localhost",
+    "port": 10021,
+    "pid": 10021
+  }, {
+    "address": "localhost",
+    "port": 10022,
+    "pid": 10022
+  }],
+  "clients": [{
+    "address": "localhost",
+    "port": 10031,
+    "pid": 10031
+  }, {
+    "address": "localhost",
+    "port": 10032,
+    "pid": 10032
+  }]
 }

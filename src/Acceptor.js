@@ -4,18 +4,17 @@ import {
 }
 from './Multicast';
 
-let uid = uuid.v4();
-let logger = NodePaxos.logger.getLogger('acceptors-' + uid.substr(0, 4));
-
-export default class Proposer {
+export default class Acceptor {
   constructor(options) {
+    let uid = uuid.v4();
+    this.logger = NodePaxos.logger.getLogger('acceptors-' + uid.substr(0, 4));
     this.id = uid;
     this.config = options;
     this.socket = {
       listener: new Receiver(this.config.acceptors), // listen on channel of acceptors
-      sender: new Sender(this.config.coordinators) // broad cast message to coordinator channel
+      coordinatorSender: new Sender(this.config.coordinators) // broad cast message to coordinator channel
     };
-    this.socket.sender.setDestination(this.config.coordinators);
+    this.socket.coordinatorSender.setDestination(this.config.coordinators);
     this.socket.listener.addListener('accept', this.onAccept.bind(this));
     this.socket.listener.addListener('prepare', this.onPrepare.bind(this));
 
@@ -23,11 +22,12 @@ export default class Proposer {
   }
 
   start() {
-    return Promise.all([this.socket.sender.start(), this.socket.listener.start()]);
+    this.logger.debug('attemp to start Acceptor' + this.id);
+    return Promise.all([this.socket.coordinatorSender.start(), this.socket.listener.start()]);
   }
 
   onAccept(message, source) {
-    logger.debug(`receive accept message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
+    this.logger.debug(`receive accept message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
     let instance = this.payload[message.proposeId];
     if (instance.round <= message.round) {
       instance.round = message.round;
@@ -38,14 +38,14 @@ export default class Proposer {
         type: 'accepted',
         data: instance
       };
-      logger.debug(`sending accepted message [${accept.type} | ${accept.data.proposeId} | ${accept.data.round}| ${accept.data.votedRound} | ${accept.data.votedValue}]`);
+      this.logger.debug(`sending accepted message [${accept.type} | ${accept.data.proposeId} | ${accept.data.round}| ${accept.data.votedRound} | ${accept.data.votedValue}]`);
       // send accept messsage to the coordinator
-      this.socket.sender.send(source, accept);
+      this.socket.coordinatorSender.broadcast(accept);
     }
   }
 
   onPrepare(message, source) {
-    logger.debug(`receive prepare message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
+    this.logger.debug(`receive prepare message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
     this.payload[message.proposeId] = this.payload[message.proposeId] || {
       round: 0,
       votedRound: 0,
@@ -67,9 +67,9 @@ export default class Proposer {
           proposeId: instance.proposeId
         }
       };
-      logger.debug(`sending promise message [${promise.type} | ${promise.data.proposeId} | ${promise.data.votedRound} | ${promise.data.votedValue}]`);
-      // send prepare messsage to the coordinator
-      this.socket.sender.send(source, promise);
+      this.logger.debug(`sending promise message [${promise.type} | ${promise.data.proposeId} | ${promise.data.votedRound} | ${promise.data.votedValue}]`);
+      // send accept messsage to the coordinator
+      this.socket.coordinatorSender.broadcast(promise);
     }
   }
 }

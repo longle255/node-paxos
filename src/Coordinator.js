@@ -136,7 +136,8 @@ export default class Coordinator {
   }
 
   processingQueue() {
-    if (this.currentIndex < this.messageQueue.length) {
+    // logger.debug(`Queueeeeee: ${this.currentIndex} - ${this.messageQueue.length}`);
+    if (this.currentIndex <= this.messageQueue.length) {
       this.sendPrepare();
     }
   }

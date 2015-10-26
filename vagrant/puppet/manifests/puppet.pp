@@ -31,24 +31,24 @@ class { 'nodejs':
   version => 'stable',
 }
 
-class { 'ohmyzsh': }
+# class { 'ohmyzsh': }
 
-ohmyzsh::install { 'vagrant': }
+# ohmyzsh::install { 'vagrant': }
 
-class updateZsh {
-  file { '/home/vagrant/.zshrc':
-    ensure => present,
-  }->
-  file_line { 'Append a line to /home/vagrant/.zshrc':
-    path => '/home/vagrant/.zshrc',
-    line => ' # set env var for node
-NODEJS_HOME=/usr/local/node/node-default
+# class updateZsh {
+#   file { '/home/vagrant/.zshrc':
+#     ensure => present,
+#   }->
+#   file_line { 'Append a line to /home/vagrant/.zshrc':
+#     path => '/home/vagrant/.zshrc',
+#     line => ' # set env var for node
+# NODEJS_HOME=/usr/local/node/node-default
 
-if [ -d "$NODEJS_HOME/bin" ] ; then
-  export PATH="$NODEJS_HOME/bin:$PATH"
-fi',
-  }
-}
+# if [ -d "$NODEJS_HOME/bin" ] ; then
+#   export PATH="$NODEJS_HOME/bin:$PATH"
+# fi',
+#   }
+# }
 include apt_update
 include othertools
 include ohmyzsh

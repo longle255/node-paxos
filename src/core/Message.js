@@ -1,4 +1,4 @@
-import Logger from '../logger';
+import Logger from '../Logger';
 let log = Logger.getLogger(module);
 
 const TYPE = {

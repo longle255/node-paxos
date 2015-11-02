@@ -1,11 +1,12 @@
-import chai from 'chai';
 import Multicast from '../../src/Multicast';
+import Logger from '../../src/Logger';
 
-var logger = NodePaxos.logger.getLogger(module);
-var multicastReceiver, multicastSender;
+let logger = Logger.getLogger(module);
+let multicastReceiver;
+let multicastSender;
 
-var testingGroup = {
-  host: '239.0.0.1',
+let testingGroup = {
+  address: '239.0.0.1',
   port: 5000
 };
 
@@ -22,43 +23,27 @@ describe('Multicast test suite', () => {
   });
 
   it('should throw error when broadcast message without starting server', () => {
-    (() => {
+    expect(() => {
       multicastSender.broadcast('test');
-    }).should.throw(Error);
+    }).to.throw(Error);
   });
 
   it('should be able to start multicastReceiver and multicastSender', done => {
-    (() => {
+    expect(() => {
       Promise.all([multicastSender.start(), multicastReceiver.start()])
         .then(function() {
           done();
         });
-    }).should.not.throw(Error);
-  });
-
-  it('should throw error when broadcast message without destinationGroup set or invalid message type', () => {
-    (() => {
-      multicastSender.broadcast('will not be sent');
-    }).should.throw(Error);
-    multicastSender.setDestination(testingGroup);
-    (() => {
-      multicastSender.broadcast({
-        test: 'will not be sent too'
-      }).should.throw(Error);
-    }).should.throw(Error);
-
+    }).to.not.throw(Error);
   });
 
   it('should be able to send and receive message', done => {
-    multicastReceiver.addListener('test', (message, sender) => {
-      logger.debug(`receive testing message ${message} from sender ${sender}`);
-      message.should.equal(123);
-      done();
-    });
-    multicastSender.setDestination(testingGroup);
-    multicastSender.broadcast({
-      type: 'test',
-      data: 123
-    });
+    // multicastReceiver.addListener(1, (message, sender) => {
+    //   logger.debug(`receive testing message ${message} from sender ${sender}`);
+    //   expect(message).to.be.eql([1, 1, 2]);
+    //   done();
+    // });
+    // multicastSender.send(testingGroup, [1, 1, 2]);
+    done();
   });
 });

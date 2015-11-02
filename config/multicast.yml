@@ -1,0 +1,17 @@
+---
+  -
+    address: "224.0.0.114"
+    port: 5000
+    group: "acceptors"
+  -
+    address: "224.0.0.114"
+    port: 6000
+    group: "clients"
+  -
+    address: "224.0.0.114"
+    port: 7000
+    group: "learners"
+  -
+    address: "224.0.0.114"
+    port: 9000
+    group: "proposers"

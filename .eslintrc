@@ -20,7 +20,6 @@ rules:
     callback-return: [2, ["cb", "callback", "next", "done"]]
     comma-spacing: 2
     comma-style: [2, "last"]
-    consistent-return: 2
     curly: [2, "all"]
     default-case: 2
     dot-notation: [2, { allowKeywords: true }]
@@ -43,12 +42,10 @@ rules:
     no-fallthrough: 2
     no-floating-decimal: 2
     no-implied-eval: 2
-    no-invalid-this: 2
     no-iterator: 2
     no-label-var: 2
     no-labels: 2
     no-lone-blocks: 2
-    no-loop-func: 2
     no-mixed-spaces-and-tabs: [2, false]
     no-multi-spaces: 2
     no-multi-str: 2
@@ -74,8 +71,6 @@ rules:
     no-undef-init: 2
     no-undefined: 2
     no-underscore-dangle: 0
-    no-unused-expressions: 2
-    #no-unused-vars: [2, {vars: "all", args: "after-used"}]
     no-unused-vars: [0]
     no-use-before-define: 2
     no-useless-concat: 2
@@ -112,3 +107,6 @@ globals:
     NodePaxos: true
     _: true
     Promise: true
+    expect: true
+    spy: true
+    stub: true

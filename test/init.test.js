@@ -1,25 +1,19 @@
-import chai from 'chai';
-import path from 'path';
-import '../';
+global.chai = require('chai');
+global.sinon = require('sinon');
+global.chai.use(require('sinon-chai'));
 
-let should = chai.should();
+require('babel/register');
 
-describe('Application Starting Up Test Suite', function() {
-  it('should populate global var correctly', function() {
-    should.exist(NodePaxos);
-    NodePaxos.rootDir.should.equal(path.join(__dirname, '../'));
-  });
+global.expect = global.chai.expect;
 
-  it('should init logger correctly', function() {
-    let logger = NodePaxos.logger.getLogger('multicast');
-    should.exist(logger);
-  });
+beforeEach(function() {
+  this.sandbox = global.sinon.sandbox.create();
+  global.stub = this.sandbox.stub.bind(this.sandbox);
+  global.spy = this.sandbox.spy.bind(this.sandbox);
+});
 
-  it('should return correct getConfig', function() {
-    let config = NodePaxos.getConfig('logger', 'multicast');
-    should.exist(config);
-    config = NodePaxos.getConfig('multicast', 'acceptors');
-    should.exist(config);
-    config.port.should.equal(5000);
-  });
+afterEach(function() {
+  delete global.stub;
+  delete global.spy;
+  this.sandbox.restore();
 });

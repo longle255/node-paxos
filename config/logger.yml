@@ -1,0 +1,55 @@
+---
+  -
+    module: "Multicast.js"
+    options:
+      console:
+        level: "info"
+        colorize: true
+        label: "MULTICAST"
+      file:
+        filename: "./logs/multicast.log"
+  -
+    module: "Message.js"
+    options:
+      console:
+        level: "info"
+        colorize: true
+        label: "MESSAGE"
+      file:
+        filename: "./logs/output.log"
+  -
+    module: "AcceptorNode.js"
+    options:
+      console:
+        level: "info"
+        colorize: true
+        label: "ACCEPTOR"
+      file:
+        filename: "./logs/acceptors.log"
+  -
+    module: "LearnerNode.js"
+    options:
+      console:
+        level: "info"
+        colorize: true
+        label: "LEARNER"
+      file:
+        filename: "./logs/leaners.log"
+  -
+    module: "ProposerNode.js"
+    options:
+      console:
+        level: "info"
+        colorize: true
+        label: "PROPOSER"
+      file:
+        filename: "./logs/proposers.log"
+  -
+    module: "ClientNode.js"
+    options:
+      console:
+        level: "info"
+        colorize: true
+        label: "CLIENT"
+      file:
+        filename: "./logs/clients.log"

@@ -1,14 +1,13 @@
 import dgram from 'dgram';
+import Logger from './Logger';
 
-export class Receiver {
+let log = Logger.getLogger(module);
+
+class Receiver {
   constructor(options) {
-    this.logger = NodePaxos.logger.getLogger('multicast');
-    this.logger.debug('starting RECEIVER component ', options);
-    this.config = {
-      address: options.address,
-      port: options.port
-    };
-
+    log.debug('starting RECEIVER component ', options);
+    this.address = options.address;
+    this.port = options.port;
     this.server = dgram.createSocket({
       type: 'udp4',
       reuseAddr: true
@@ -23,31 +22,35 @@ export class Receiver {
 
   start() {
     this.server.on('error', err => {
-      this.logger.error('server error:\n' + err.stack);
+      log.error('server error:\n' + err.stack);
       this.server.close();
     });
 
     this.server.on('message', (msg, rinfo) => {
-      this.logger.debug(`got message ${msg} from group ${rinfo.address}:${rinfo.port}`);
+      log.debug(`got message ${msg} from group ${rinfo.address}:${rinfo.port}`);
       let message = msg.toString('utf8');
       try {
         message = JSON.parse(message);
       } catch (e) {
-        this.logger.error('can\'t parse message ${message}');
+        log.error(`can\'t parse message ${message}`);
         return;
       }
-      if (!message.type || !message.data || !this.handlers.hasOwnProperty(message.type)) {
-        this.logger.error('not paxos message type');
+      if (!message.length || message.length <= 1) {
+        log.error('not paxos message type');
         return;
       }
-      this.handlers[message.type](message.data, rinfo);
+      if (!this.handlers[message[0]]) {
+        log.error(`no handler for message type ${message[0]}`);
+        return;
+      }
+      this.handlers[message[0]](message, rinfo);
     });
 
     return new Promise((resolve, reject) => {
       try {
-        this.server.bind(this.config.port, () => {
-          this.logger.info(`RECEIVER bind success on ${this.config.address}:${this.config.port}`);
-          this.server.addMembership(this.config.address);
+        this.server.bind(this.port, () => {
+          log.debug(`RECEIVER bind success on ${this.address}:${this.port}`);
+          this.server.addMembership(this.address);
           this.isRunning = true;
           resolve();
         });
@@ -58,15 +61,11 @@ export class Receiver {
   }
 }
 
-export class Sender {
+class Sender {
   constructor(options) {
-    this.logger = NodePaxos.logger.getLogger('multicast');
-    this.logger.debug('starting SENDER component ', options);
-    this.config = {
-      address: options.address,
-      port: options.port,
-      destinationGroup: options.destinationGroup
-    };
+    log.debug('starting SENDER component ', options);
+    this.address = options.address;
+    this.port = options.port;
     this.server = dgram.createSocket({
       type: 'udp4',
       reuseAddr: true
@@ -77,8 +76,8 @@ export class Sender {
   start() {
     return new Promise((resolve, reject) => {
       try {
-        this.server.bind(this.config.port, () => {
-          this.logger.info(`SENDER bind success on ${this.config.address}:${this.config.port}`);
+        this.server.bind(this.port, () => {
+          log.debug(`SENDER bind success on ${this.address}:${this.port}`);
           this.server.setTTL(128);
           this.server.setBroadcast(true);
           this.server.setMulticastTTL(128);
@@ -92,44 +91,24 @@ export class Sender {
     });
   }
 
-  setDestination(destinationGroup) {
-    this.config.destinationGroup = destinationGroup;
-  }
-
-  broadcast(dest, message) {
-    if (!message) {
-      message = dest;
-      dest = this.config.destinationGroup;
-    }
-    if (!message.type) {
-      this.logger.error('invalid message');
-      throw new Error('invalid message');
-    }
-    if (!this.isRunning) {
-      this.logger.error('service is not running');
-      throw new Error('service is not running');
-    }
-    if (!dest) {
-      this.logger.error('destinationGroup is not set');
-      throw new Error('destinationGroup is not set');
-    }
-
-    var serializedMessage = new Buffer(JSON.stringify(message));
-    this.server.send(serializedMessage, 0, serializedMessage.length, dest.port, dest.address);
-    this.logger.debug(`broadcast message ${message} to the group ${dest.address}:${dest.port}`);
-  }
-
   send(dest, message) {
     if (!this.isRunning) {
-      this.logger.error('service is not running');
+      log.error('service is not running');
       throw new Error('service is not running');
     }
     if (arguments.length < 2) {
-      this.logger.error('requires 2 arguments');
+      log.error('requires 2 arguments');
       throw new Error('requires 2 arguments');
+    }
+    if (typeof message.serialize === 'function') {
+      message = message.serialize();
     }
     var serializedMessage = new Buffer(JSON.stringify(message));
     this.server.send(serializedMessage, 0, serializedMessage.length, dest.port, dest.address);
-    this.logger.debug(`send message ${message} to the destination ${dest.address}:${dest.port}`);
+    log.debug(`send message ${message} to the destination ${dest.address}:${dest.port}`);
   }
 }
+
+export default {
+  Sender, Receiver
+};

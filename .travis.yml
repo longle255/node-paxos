@@ -11,4 +11,4 @@ script:
   - gulp test
   - gulp coverage
 after_success:
-  - codeclimate < coverage/lcov.info
+  - CODECLIMATE_REPO_TOKEN=670b7232a6a5c100a0aa844f18780416e7d3df83918663fc1db0b71d02fdb986 codeclimate < coverage/lcov.info

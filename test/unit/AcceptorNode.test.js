@@ -30,10 +30,17 @@ describe('AcceptorNode test suite', () => {
     expect(acceptorNode.id).to.be.equal(100);
   });
 
-  it('should be able to listen to message', done => {
-    spy(acceptorNode, 'onPrepare');
+  it('should be able to listen to prepare message', done => {
     let prepare = new Message.Prepare(9999, 0, proposerHost.id);
     multicastSender.send(acceptorGroup, prepare);
+    // TODO: check if onPrepare called
+    done();
+  });
+
+  it('should be able to listen to accept message', done => {
+    let accept = new Message.Accept(9999, 0, 3, 10);
+    multicastSender.send(acceptorGroup, accept);
+    // TODO: check if onAccept called
     done();
   });
 });

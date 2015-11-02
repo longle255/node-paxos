@@ -31,9 +31,17 @@ describe('ProposerNode test suite', () => {
     expect(proposerNode.id).to.be.equal(10001);
   });
 
-  it('should be able to listen to message', done => {
+  it('should be able to listen to request message', done => {
     let prepare = new Message.Request(100);
     multicastSender.send(proposerGroup, prepare);
+    // TODO: check if onRequet called
+    done();
+  });
+
+  it('should be able to listen to promise message', done => {
+    let promise = new Message.Promise(3, 1, 0, null, 1);
+    multicastSender.send(proposerGroup, promise);
+    // TODO: check if onPromise called
     done();
   });
 });

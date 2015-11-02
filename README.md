@@ -11,14 +11,13 @@ Node implementation of Paxos
 
 **Requirements:**
 
-1. Vagrant
-
-```sh
-vagrant up
-```
-
-That's all
-
-
 ## Usage
 
+```sh
+
+node index.js -r acceptors
+node index.js -r proposers
+node index.js -r learners
+node index.js -r clients
+
+```

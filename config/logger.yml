@@ -21,7 +21,7 @@
     module: "AcceptorNode.js"
     options:
       console:
-        level: "info"
+        level: "debug"
         colorize: true
         label: "ACCEPTOR"
       file:

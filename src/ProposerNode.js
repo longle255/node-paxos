@@ -8,24 +8,33 @@ let log = Logger.getLogger(module);
 export default class ProposerNode extends Proposer {
   constructor(options) {
     super(options);
+    this.address = options.address;
+    this.port = options.port;
     this.multicast = {
       // listen on channel of acceptors
       receiver: new Multicast.Receiver(options.multicast),
       // broad cast message to coordinator channel
       sender: new Multicast.Sender(options.multicast)
     };
+    this.socket = {
+      receiver: new Multicast.Receiver({
+        address: this.address,
+        port: this.port,
+        isDirectChannel: true
+      })
+    };
     this.multicast.receiver.addListener(Message.TYPE.CLIENT.REQUEST, this.onRequest.bind(this));
-    this.multicast.receiver.addListener(Message.TYPE.ACCEPTOR.PROMISE, this.onPromise.bind(this));
+    this.socket.receiver.addListener(Message.TYPE.ACCEPTOR.PROMISE, this.onPromise.bind(this));
   }
 
   start() {
     log.debug('attemp to start Proposer ' + this.id);
-    return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
+    return Promise.all([this.multicast.receiver.start(), this.socket.receiver.start(), this.multicast.sender.start()]);
   }
 
   stop() {
     log.debug('attemp to stop Proposer ' + this.id);
-    return Promise.all([this.multicast.receiver.stop(), this.multicast.sender.stop()]);
+    return Promise.all([this.multicast.receiver.stop(), this.socket.receiver.stop(), this.multicast.sender.stop()]);
   }
 
   onRequest(message, source) {

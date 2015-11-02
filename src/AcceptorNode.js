@@ -43,8 +43,8 @@ export default class AcceptorNode extends Acceptor {
     message = Message.Prepare.parse(message);
     log.debug(`receive prepare message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
     var promise = this.getPromise(message);
-    // var dest = SystemConfig.getNode(message.proposerId);
-    var dest = SystemConfig.getMulticastGroup('proposers');
+    var dest = SystemConfig.getNode(message.proposerId);
+    // var dest = SystemConfig.getMulticastGroup('proposers');
     log.debug(`sending promise message ${JSON.stringify(promise)} to ${JSON.stringify(dest)}`);
     this.multicast.sender.send(dest, promise);
   }

@@ -14,6 +14,7 @@ class Receiver {
     });
     this.isRunning = false;
     this.handlers = {};
+    this.isDirectChannel = options.isDirectChannel || false;
   }
 
   addListener(messageType, handler) {
@@ -50,7 +51,9 @@ class Receiver {
       try {
         this.server.bind(this.port, () => {
           log.debug(`RECEIVER bind success on ${this.address}:${this.port}`);
-          this.server.addMembership(this.address);
+          if (!this.isDirectChannel) {
+            this.server.addMembership(this.address);
+          }
           this.isRunning = true;
           resolve();
         });

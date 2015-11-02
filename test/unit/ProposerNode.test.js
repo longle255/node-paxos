@@ -14,7 +14,9 @@ describe('ProposerNode test suite', () => {
     proposerNode = new ProposerNode({
       multicast: proposerGroup,
       id: 10001,
-      quorum: 1
+      quorum: 1,
+      address: '127.0.0.1',
+      port: 10001
     });
 
     multicastSender = new Multicast.Sender(clientGroup);
@@ -40,7 +42,10 @@ describe('ProposerNode test suite', () => {
 
   it('should be able to listen to promise message', done => {
     let promise = new Message.Promise(3, 1, 0, null, 1);
-    multicastSender.send(proposerGroup, promise);
+    multicastSender.send({
+      address: '127.0.0.1',
+      port: 10001
+    }, promise);
     // TODO: check if onPromise called
     done();
   });

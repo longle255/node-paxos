@@ -29,7 +29,8 @@ export default opt => {
       _.each(SystemConfig.getGroup('learners'), learner => {
         let options = _.assign(learner, {
           multicast: lMul,
-          quorum: SystemConfig.getQuorum()
+          quorum: SystemConfig.getQuorum(),
+          calRate: true
         });
         let l = new LearnerNode(options);
         learners.push(l.start());

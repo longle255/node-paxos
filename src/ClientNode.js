@@ -22,6 +22,11 @@ export default class ClientNode extends Client {
     return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
   }
 
+  stop() {
+    log.debug('attempt to stop Client' + this.id);
+    return Promise.all([this.multicast.receiver.stop(), this.multicast.sender.stop()]);
+  }
+
   request(message) {
     var request = this.getRequest(message);
     var dest = SystemConfig.getMulticastGroup('proposers');

@@ -21,6 +21,10 @@ describe('LearnerNode test suite', () => {
     Promise.all([learnerNode.start(), multicastSender.start()])
       .then(() => done());
   });
+  after(done => {
+    Promise.all([learnerNode.stop(), multicastSender.stop()])
+      .then(() => done());
+  });
 
   it('should be able to start Acceptor Node', () => {
     expect(learnerNode.id).to.be.equal(10021);

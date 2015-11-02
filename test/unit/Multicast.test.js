@@ -11,6 +11,12 @@ let testingGroup = {
 };
 
 describe('Multicast test suite', () => {
+
+  after(done => {
+    Promise.all([multicastReceiver.stop(), multicastSender.stop()])
+      .then(() => done());
+  });
+
   it('should be able to init multicastReceiver and multicastSender', () => {
     multicastReceiver = new Multicast.Receiver(testingGroup);
     multicastSender = new Multicast.Sender(testingGroup);
@@ -38,12 +44,12 @@ describe('Multicast test suite', () => {
   });
 
   it('should be able to send and receive message', done => {
-    // multicastReceiver.addListener(1, (message, sender) => {
-    //   logger.debug(`receive testing message ${message} from sender ${sender}`);
-    //   expect(message).to.be.eql([1, 1, 2]);
-    //   done();
-    // });
-    // multicastSender.send(testingGroup, [1, 1, 2]);
-    done();
+    multicastReceiver.addListener(1, (message, sender) => {
+      logger.debug(`receive testing message ${message} from sender ${sender}`);
+      expect(message).to.be.eql([1, 1, 2]);
+      done();
+    });
+    multicastSender.send(testingGroup, [1, 1, 2]);
+    // done();
   });
 });

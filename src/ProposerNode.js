@@ -23,6 +23,11 @@ export default class ProposerNode extends Proposer {
     return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
   }
 
+  stop() {
+    log.debug('attemp to stop Proposer ' + this.id);
+    return Promise.all([this.multicast.receiver.stop(), this.multicast.sender.stop()]);
+  }
+
   onRequest(message, source) {
     message = Message.Request.parse(message);
     log.debug(`receive request message ${JSON.stringify(message)} from ${source.address}:${source.port}`);

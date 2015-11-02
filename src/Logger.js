@@ -22,7 +22,7 @@ winston.addColors({
 winston.remove(winston.transports.Console);
 
 winston.add(winston.transports.Console, {
-  level: 'debug',
+  level: 'info',
   colorize: true
 });
 

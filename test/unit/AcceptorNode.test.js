@@ -21,6 +21,11 @@ describe('AcceptorNode test suite', () => {
       .then(() => done());
   });
 
+  after(done => {
+    Promise.all([acceptorNode.stop(), multicastSender.stop()])
+      .then(() => done());
+  });
+
   it('should be able to start Acceptor Node', () => {
     expect(acceptorNode.id).to.be.equal(100);
   });

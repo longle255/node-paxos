@@ -59,6 +59,17 @@ class Receiver {
       }
     });
   }
+
+  stop() {
+    return new Promise((resolve, reject) => {
+      this.server.close(err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
+    });
+  }
 }
 
 class Sender {
@@ -88,6 +99,17 @@ class Sender {
       } catch (e) {
         reject(e);
       }
+    });
+  }
+
+  stop() {
+    return new Promise((resolve, reject) => {
+      this.server.close(err => {
+        if (err) {
+          return reject(err);
+        }
+        resolve();
+      });
     });
   }
 

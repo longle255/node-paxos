@@ -23,6 +23,11 @@ export default class AcceptorNode extends Acceptor {
     return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
   }
 
+  stop() {
+    log.debug(`attempt to stop Acceptor ${this.id}`);
+    return Promise.all([this.multicast.receiver.stop(), this.multicast.sender.stop()]);
+  }
+
   onAccept(message, source) {
     message = Message.Accept.parse(message);
     log.debug(`receive accept message ${JSON.stringify(message)} from ${source.address}:${source.port}`);

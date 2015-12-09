@@ -8,7 +8,9 @@ const TYPE = {
   PROPOSER: { // 101-199
     PREPARE: 101,
     ACCEPT: 102,
-    DECIDE: 103
+    DECIDE: 103,
+    REQUEST_VOTE: 104,
+    VOTE: 105
   },
   ACCEPTOR: { // 201-299
     PROMISE: 201,
@@ -18,6 +20,18 @@ const TYPE = {
     RESPONSE: 301
   }
 };
+
+function isValid(message, length, type) {
+  if (message.length !== length) {
+    log.debug('got invalid message length');
+    return false;
+  }
+  if (message[0] !== type) {
+    log.debug('got invalid message type');
+    return false;
+  }
+  return true;
+}
 
 class Message {
   constructor() {
@@ -33,6 +47,41 @@ class Message {
   }
 }
 
+class RequestVote extends Message {
+  constructor(proposerId) {
+    super();
+    this.type = TYPE.PROPOSER.REQUEST_VOTE;
+    this.proposerId = proposerId;
+  }
+  static parse(message) {
+    if (!isValid(message, 2, TYPE.PROPOSER.REQUEST_VOTE)) {
+      return null;
+    }
+    return new RequestVote(message[1]);
+  }
+  serialize() {
+    return [this.type, this.proposerId];
+  }
+}
+
+class Vote extends Message {
+  constructor(proposerId, granted) {
+    super();
+    this.type = TYPE.PROPOSER.VOTE;
+    this.proposerId = proposerId;
+    this.granted = granted;
+  }
+  static parse(message) {
+    if (!isValid(message, 3, TYPE.PROPOSER.VOTE)) {
+      return null;
+    }
+    return new Vote(message[1], message[2]);
+  }
+  serialize() {
+    return [this.type, this.proposerId, this.granted];
+  }
+}
+
 class Prepare extends Message {
   constructor(proposeId, round, proposerId) {
     super();
@@ -42,12 +91,7 @@ class Prepare extends Message {
     this.proposerId = proposerId;
   }
   static parse(message) {
-    if (message.length !== 4) {
-      log.debug('got invalid prepare message');
-      return null;
-    }
-    if (message[0] !== TYPE.PROPOSER.PREPARE) {
-      log.debug('got invalid prepare message type');
+    if (!isValid(message, 4, TYPE.PROPOSER.PREPARE)) {
       return null;
     }
     return new Prepare(message[1], message[2], message[3]);
@@ -67,12 +111,7 @@ class Accept extends Message {
     this.proposerId = proposerId;
   }
   static parse(message) {
-    if (message.length !== 5) {
-      log.debug('got invalid accept message');
-      return null;
-    }
-    if (message[0] !== TYPE.PROPOSER.ACCEPT) {
-      log.debug('got invalid accept message type');
+    if (!isValid(message, 5, TYPE.PROPOSER.ACCEPT)) {
       return null;
     }
     return new Accept(message[1], message[2], message[3], message[4]);
@@ -93,12 +132,7 @@ class Promise extends Message {
     this.acceptorId = acceptorId;
   }
   static parse(message) {
-    if (message.length !== 6) {
-      log.debug('got invalid promise message');
-      return null;
-    }
-    if (message[0] !== TYPE.ACCEPTOR.PROMISE) {
-      log.debug('got invalid promise message type');
+    if (!isValid(message, 6, TYPE.ACCEPTOR.PROMISE)) {
       return null;
     }
     return new Promise(message[1], message[2], message[3], message[4], message[5]);
@@ -118,12 +152,7 @@ class Accepted extends Message {
     this.acceptorId = acceptorId;
   }
   static parse(message) {
-    if (message.length !== 5) {
-      log.debug('got invalid promise message');
-      return null;
-    }
-    if (message[0] !== TYPE.ACCEPTOR.ACCEPTED) {
-      log.debug('got invalid promise message type');
+    if (!isValid(message, 5, TYPE.ACCEPTOR.ACCEPTED)) {
       return null;
     }
     return new Accepted(message[1], message[2], message[3], message[4]);
@@ -141,12 +170,7 @@ class Request extends Message {
   }
 
   static parse(message) {
-    if (message.length !== 2) {
-      log.debug('got invalid client request');
-      return null;
-    }
-    if (message[0] !== TYPE.CLIENT.REQUEST) {
-      log.debug('got invalid client request type');
+    if (!isValid(message, 2, TYPE.CLIENT.REQUEST)) {
       return null;
     }
     return new Request(message[1]);
@@ -165,12 +189,7 @@ class Response extends Message {
   }
 
   static parse(message) {
-    if (message.length !== 3) {
-      log.debug('got invalid client request');
-      return null;
-    }
-    if (message[0] !== TYPE.LEARNER.RESPONSE) {
-      log.debug('got invalid client request type');
+    if (!isValid(message, 3, TYPE.LEARNER.RESPONSE)) {
       return null;
     }
     return new Response(message[1], message[2]);
@@ -181,5 +200,5 @@ class Response extends Message {
 }
 
 export default {
-  Prepare, Accept, Promise, Accepted, Request, Response, TYPE
+  RequestVote, Vote, Prepare, Accept, Promise, Accepted, Request, Response, TYPE
 };

@@ -1,6 +1,35 @@
 import Message from '../../../src/core/Message';
 
 describe('Message test suite', () => {
+  it('class Message.RequestVote should be functional', () => {
+    let message = [Message.TYPE.PROPOSER.REQUEST_VOTE, 10];
+    expect(() => {
+      let prepare = new Message.RequestVote(10);
+      expect(prepare.serialize()).to.be.eql(message);
+    }).to.not.throw(Error);
+    expect(Message.RequestVote.parse([0])).to.be.eql(null);
+    expect(Message.RequestVote.parse([1, 1])).to.be.eql(null);
+    expect(Message.RequestVote.parse(message)).to.be.eql({
+      type: Message.TYPE.PROPOSER.REQUEST_VOTE,
+      proposerId: 10
+    });
+  });
+
+  it('class Message.Vote should be functional', () => {
+    let message = [Message.TYPE.PROPOSER.VOTE, 10, true];
+    expect(() => {
+      let prepare = new Message.Vote(10, true);
+      expect(prepare.serialize()).to.be.eql(message);
+    }).to.not.throw(Error);
+    expect(Message.Vote.parse([0, 1])).to.be.eql(null);
+    expect(Message.Vote.parse([1, 1, 2])).to.be.eql(null);
+    expect(Message.Vote.parse(message)).to.be.eql({
+      type: Message.TYPE.PROPOSER.VOTE,
+      proposerId: 10,
+      granted: true
+    });
+  });
+
   it('class Message.Prepare should be functional', () => {
     let message = [Message.TYPE.PROPOSER.PREPARE, 1, 2, 10];
     expect(() => {

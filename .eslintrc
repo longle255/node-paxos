@@ -88,8 +88,6 @@ rules:
     space-unary-ops: [2, {words: true, nonwords: false}]
     spaced-comment: [2, "always", { exceptions: ["-"]}]
     strict: [2, "global"]
-    #valid-jsdoc: [2, { prefer: { "return": "return"}}]
-    valid-jsdoc: [0]
     wrap-iife: 2
     yoda: [2, "never"]
 

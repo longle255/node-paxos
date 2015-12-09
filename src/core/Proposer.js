@@ -1,5 +1,6 @@
 import Message from './Message';
 import Logger from '../Logger';
+import _ from 'lodash';
 
 let log = Logger.getLogger(module);
 
@@ -12,6 +13,18 @@ export default class Coordinator {
     this.proposeId = 0;
     this.backlog = {};
     this.quorum = options.quorum;
+  }
+
+  getRequestVote() {
+    return new Message.RequestVote(this.id);
+  }
+
+  getVote(message) {
+    if (!this.leader) {
+      this.leader = message.proposeId;
+      return new Message.Vote(this.id, true);
+    }
+    return new Message.Vote(this.id, false);
   }
 
   addRequest(message) {

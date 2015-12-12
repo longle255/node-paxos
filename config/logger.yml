@@ -3,7 +3,7 @@
     module: "Multicast.js"
     options:
       console:
-        level: "info"
+        level: "error"
         colorize: true
         label: "MULTICAST"
       file:
@@ -12,7 +12,7 @@
     module: "Message.js"
     options:
       console:
-        level: "info"
+        level: "error"
         colorize: true
         label: "MESSAGE"
       file:
@@ -21,7 +21,7 @@
     module: "AcceptorNode.js"
     options:
       console:
-        level: "info"
+        level: "error"
         colorize: true
         label: "ACCEPTOR"
       file:
@@ -30,7 +30,7 @@
     module: "LearnerNode.js"
     options:
       console:
-        level: "info"
+        level: "error"
         colorize: true
         label: "LEARNER"
       file:
@@ -39,7 +39,7 @@
     module: "ProposerNode.js"
     options:
       console:
-        level: "info"
+        level: "error"
         colorize: true
         label: "PROPOSER"
       file:
@@ -48,7 +48,7 @@
     module: "ClientNode.js"
     options:
       console:
-        level: "info"
+        level: "error"
         colorize: true
         label: "CLIENT"
       file:

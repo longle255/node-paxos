@@ -2,29 +2,23 @@ import Message from './Message';
 import Logger from '../Logger';
 import _ from 'lodash';
 
-let log = Logger.getLogger(module);
-
 export default class Coordinator {
   constructor(options) {
     this.id = options.id;
-    this.isLeader = false;
-    this.leader = null;
+    this.logger = Logger.getLogger(module, this.id);
     this.requestQueue = [];
-    this.proposeId = 0;
+    this.catchUpQueue = [];
+    // this.isLeader = false;
+    // this.leader = null;
+    // this.votedFor = null;
+    // this.votedTerm = null;
+    // this.electionTerm = 0;
+    // this.voteCount = 0;
+
+    this.proposeId = options.minProposalId - 1;
     this.backlog = {};
-    this.quorum = options.quorum;
-  }
-
-  getRequestVote() {
-    return new Message.RequestVote(this.id);
-  }
-
-  getVote(message) {
-    if (!this.leader) {
-      this.leader = message.proposeId;
-      return new Message.Vote(this.id, true);
-    }
-    return new Message.Vote(this.id, false);
+    this.acceptorQuorum = options.acceptorQuorum;
+    // this.state = PROPOSER_STATE.FOLLOWER;
   }
 
   addRequest(message) {
@@ -35,9 +29,16 @@ export default class Coordinator {
     return this.requestQueue.shift();
   }
 
-  getNextPrepare() {
-    this.proposeId++;
-    return new Message.Prepare(this.proposeId, 0, this.id);
+  getNextPrepare(proposeId) {
+    if (!proposeId) {
+      this.proposeId++;
+      return new Message.Prepare(this.proposeId, 0, this.id);
+    } else { // propose a catch up id
+      if (this.backlog[proposeId]) {
+        this.backlog[proposeId].promisedAcceptors = [];
+      }
+      return new Message.Prepare(proposeId, 0, this.id);
+    }
   }
 
   getAccept(message) {
@@ -54,7 +55,6 @@ export default class Coordinator {
     } else {
       msg.promisedAcceptors = [message.acceptorId];
     }
-
     // update votedRound and votedValue regarding to new value in the promise message
     if (msg.round === message.round) {
       if (msg.votedRound < message.votedRound) {
@@ -62,10 +62,10 @@ export default class Coordinator {
         msg.votedValue = message.votedValue;
       }
     } else {
-      log.warn('what is going on here? how can I get here?');
+      this.logger.warn('what is going on here? how can I get here?');
     }
-    // check if quorum of acceptor promise
-    if (msg.promisedAcceptors.length >= this.quorum) {
+    // check if acceptorQuorum of acceptor promise
+    if (msg.promisedAcceptors.length >= this.acceptorQuorum) {
       // set votedValue for the first round
       if (!msg.votedValue) {
         let request = this.getNextRequest();

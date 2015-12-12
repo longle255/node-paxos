@@ -1,11 +1,13 @@
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
+const gutil = require('gulp-util');
 const del = require('del');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const isparta = require('isparta');
 const exec = require('child_process').exec;
-
+const sourcemaps = require('gulp-sourcemaps');
+const babel = require('gulp-babel');
 const manifest = require('./package.json');
 const config = manifest.nodeBoilerplateOptions;
 const mainFile = manifest.main;
@@ -57,30 +59,28 @@ gulp.task('build', ['lint-src', 'clean'], function() {
   mkdirp.sync(destinationFolder);
   return gulp.src('src/**/*.js')
     .pipe($.plumber())
-    .pipe($.babel({
-      blacklist: ['useStrict']
-    }))
+    .pipe($.babel())
     .pipe(gulp.dest(destinationFolder));
 });
 
 function test() {
   return gulp.src(['test/init.test.js', 'test/unit/**/*.js'], {
-    read: false
-  })
-  .pipe($.plumber())
-  .pipe($.mocha({
-    reporter: 'spec',
-    globals: [
-      'stub',
-      'spy',
-      'expect'
-    ],
-    timeout: 10000
-  }));
+      read: false
+    })
+    .pipe($.plumber())
+    .pipe($.mocha({
+      reporter: 'spec',
+      globals: [
+        'stub',
+        'spy',
+        'expect'
+      ],
+      timeout: 10000
+    }));
 }
 
 // Make babel preprocess the scripts the user tries to import from here on.
-require('babel/register');
+require('babel-core/register');
 
 gulp.task('coverage', function(done) {
   gulp.src(['src/*.js'])
@@ -96,6 +96,20 @@ gulp.task('coverage', function(done) {
     });
 });
 
+// Compile ES6 to ES5
+gulp.task('babel-dist', function() {
+  return gulp.src(['src/**/*.js'])
+    .pipe(sourcemaps.init())
+    .pipe($.babel())
+    .on('error', gutil.log)
+    .pipe(sourcemaps.write('.', {
+      includeContent: false,
+      sourceRoot: function(file) {
+        return path.relative(file.path, __dirname);
+      }
+    }))
+    .pipe(gulp.dest('dist'));
+});
 
 // Lint and run our tests
 gulp.task('test', ['lint-src', 'lint-test'], test);

@@ -8,6 +8,20 @@ export default class Learner {
     this.id = options.id;
     this.quorum = options.quorum;
     this.backlog = {};
+    this.delivered = {};
+    this.minProposalId = options.minProposalId;
+    this.currentMaxProposalId = options.minProposalId;
+
+  }
+
+  getMissingProposals() {
+    let missingProposals = [];
+    for (let i = this.minProposalId; i <= this.currentMaxProposalId; i++) {
+      if (!this.delivered[i]) {
+        missingProposals.push(i);
+      }
+    }
+    return missingProposals;
   }
 
   getDecide(message) {
@@ -38,6 +52,10 @@ export default class Learner {
   }
 
   deliver(message) {
+    this.delivered[message.proposeId] = message.value;
+    if (this.currentMaxProposalId < message.proposeId) {
+      this.currentMaxProposalId = message.proposeId;
+    }
     return new Message.Response(message.proposeId, message.value);
   }
 }

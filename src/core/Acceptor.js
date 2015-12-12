@@ -1,10 +1,9 @@
 import Message from './Message';
 import Logger from '../Logger';
 
-let log = Logger.getLogger(module);
-
 export default class Acceptor {
   constructor(options) {
+    this.logger = Logger.getLogger(module);
     this.id = options.id;
     this.backlog = {};
     this.promises = {};
@@ -29,12 +28,12 @@ export default class Acceptor {
       round: 0,
       votedRound: 0,
       votedValue: null,
-      proposeId: message.proposeId
+      proposeId: message.proposeId,
+      proposerId: message.proposerId
     };
-
     if (msg.round <= message.round) {
       msg.round = message.round;
-      return new Message.Promise(msg.proposeId, msg.round, msg.votedRound, msg.votedValue, this.id);
+      return new Message.Promise(msg.proposeId, msg.round, msg.votedRound, msg.votedValue, this.id, message.proposerId);
     }
     // TODO: return nack
     return null;

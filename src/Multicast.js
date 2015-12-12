@@ -1,17 +1,19 @@
 import dgram from 'dgram';
 import Logger from './Logger';
 
-let log = Logger.getLogger(module);
+let logger;
 
 class Receiver {
   constructor(options) {
-    log.debug('starting RECEIVER component ', options);
+    logger = Logger.getLogger(module, options.id);
+    logger.debug('starting RECEIVER component ', options);
     this.address = options.address;
     this.port = options.port;
     this.server = dgram.createSocket({
       type: 'udp4',
       reuseAddr: true
     });
+    this.processId = options.id;
     this.isRunning = false;
     this.handlers = {};
     this.isDirectChannel = options.isDirectChannel || false;
@@ -23,25 +25,25 @@ class Receiver {
 
   start() {
     this.server.on('error', err => {
-      log.error('server error:\n' + err.stack);
+      logger.error('server error:\n' + err.stack);
       this.server.close();
     });
 
     this.server.on('message', (msg, rinfo) => {
-      log.debug(`got message ${msg} from group ${rinfo.address}:${rinfo.port}`);
+      logger.debug(`got message ${msg} from group ${rinfo.address}:${rinfo.port}`);
       let message = msg.toString('utf8');
       try {
         message = JSON.parse(message);
       } catch (e) {
-        log.error(`can\'t parse message ${message}`);
+        logger.error(`can\'t parse message ${message}`);
         return;
       }
       if (!message.length || message.length <= 1) {
-        log.error('not paxos message type');
+        logger.error('not paxos message type');
         return;
       }
       if (!this.handlers[message[0]]) {
-        log.error(`no handler for message type ${message[0]}`);
+        logger.error(`no handler for message type ${message[0]}`);
         return;
       }
       this.handlers[message[0]](message, rinfo);
@@ -50,7 +52,7 @@ class Receiver {
     return new Promise((resolve, reject) => {
       try {
         this.server.bind(this.port, () => {
-          log.debug(`RECEIVER bind success on ${this.address}:${this.port}`);
+          logger.debug(`RECEIVER bind success on ${this.address}:${this.port}`);
           if (!this.isDirectChannel) {
             this.server.addMembership(this.address);
           }
@@ -77,9 +79,11 @@ class Receiver {
 
 class Sender {
   constructor(options) {
-    log.debug('starting SENDER component ', options);
+    logger = Logger.getLogger(module, options.id);
+    logger.debug('starting SENDER component ', options);
     this.address = options.address;
     this.port = options.port;
+    this.processId = options.id;
     this.server = dgram.createSocket({
       type: 'udp4',
       reuseAddr: true
@@ -91,7 +95,7 @@ class Sender {
     return new Promise((resolve, reject) => {
       try {
         this.server.bind(this.port, () => {
-          log.debug(`SENDER bind success on ${this.address}:${this.port}`);
+          logger.debug(`SENDER bind success on ${this.address}:${this.port}`);
           this.server.setTTL(128);
           this.server.setBroadcast(true);
           this.server.setMulticastTTL(128);
@@ -118,19 +122,20 @@ class Sender {
 
   send(dest, message) {
     if (!this.isRunning) {
-      log.error('service is not running');
+      logger.error('service is not running');
       throw new Error('service is not running');
     }
-    if (arguments.length < 2) {
-      log.error('requires 2 arguments');
-      throw new Error('requires 2 arguments');
+    if (arguments.length < 2 || !dest || !message) {
+      logger.error('requires 2 arguments');
+      return;
+      // throw new Error('requires 2 arguments');
     }
     if (typeof message.serialize === 'function') {
       message = message.serialize();
     }
     var serializedMessage = new Buffer(JSON.stringify(message));
     this.server.send(serializedMessage, 0, serializedMessage.length, dest.port, dest.address);
-    log.debug(`send message ${message} to the destination ${dest.address}:${dest.port}`);
+    logger.debug(`send message ${message} to the destination ${dest.address}:${dest.port}`);
   }
 }
 

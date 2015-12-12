@@ -53,7 +53,8 @@ describe('Integration test suite', () => {
       proposeId: 1,
       votedRound: 0,
       votedValue: null,
-      acceptorId: 21
+      acceptorId: 21,
+      proposerId: 10
     });
     // so does acceptor 2
     let promise2 = acceptor2.getPromise(prepare);
@@ -63,7 +64,8 @@ describe('Integration test suite', () => {
       proposeId: 1,
       votedRound: 0,
       votedValue: null,
-      acceptorId: 22
+      acceptorId: 22,
+      proposerId: 10
     });
 
     // proposer takes first promise, prepare accept message

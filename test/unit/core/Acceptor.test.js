@@ -25,7 +25,8 @@ describe('Acceptor test suite', () => {
       proposeId: 1,
       votedRound: 0,
       votedValue: null,
-      acceptorId: 1
+      acceptorId: 1,
+      proposerId: 10
     });
 
     expect(acceptor.backlog[1]).to.be.exist;
@@ -40,7 +41,8 @@ describe('Acceptor test suite', () => {
       proposeId: 1,
       votedRound: 0,
       votedValue: null,
-      acceptorId: 1
+      acceptorId: 1,
+      proposerId: 10
     });
     expect(acceptor.backlog[1]).to.be.exist;
     expect(acceptor.backlog[1].round).to.be.eql(3);
@@ -57,7 +59,7 @@ describe('Acceptor test suite', () => {
     expect(accepted).to.be.not.exist;
 
     // Scenario 1: One proposer send prepare message...
-    let prepare = new Message.Promise(1, 2);
+    let prepare = new Message.Prepare(1, 2, 10);
     let promise = acceptor.getPromise(prepare);
     expect(promise).to.be.exist;
     expect(promise).to.be.eql({
@@ -66,7 +68,8 @@ describe('Acceptor test suite', () => {
       round: 2,
       votedRound: 0,
       votedValue: null,
-      acceptorId: 1
+      acceptorId: 1,
+      proposerId: 10
     });
 
     // Scenario 1: ...then send accept message

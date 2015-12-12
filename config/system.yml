@@ -1,43 +1,8 @@
 ---
-  totalProcesses: 3
-  quorum: 2
-  proposers:
-    -
-      address: "127.0.0.1"
-      port: 10001
-      id: 10001
-  acceptors:
-    -
-      address: "127.0.0.1"
-      port: 10011
-      id: 10011
-    -
-      address: "127.0.0.1"
-      port: 10012
-      id: 10012
-  learners:
-    -
-      address: "127.0.0.1"
-      port: 10021
-      id: 10021
-    # -
-    #   address: "127.0.0.1"
-    #   port: 10022
-    #   id: 10022
-  clients:
-    -
-      address: "127.0.0.1"
-      port: 10031
-      id: 10031
-    -
-      address: "127.0.0.1"
-      port: 10032
-      id: 10032
-    -
-      address: "127.0.0.1"
-      port: 10033
-      id: 10033
-    -
-      address: "127.0.0.1"
-      port: 10034
-      id: 10034
+  acceptorQuorum: 2
+  proposerQuorum: 2
+  proposers: 2
+  acceptors: 3
+  learners: 2
+  clients: 2
+  minProposalId: 1

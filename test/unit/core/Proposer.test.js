@@ -71,21 +71,21 @@ describe('Proposer test suite', () => {
     });
   });
 
-  it('should gen correct vote request message', () => {
-    var message = proposer.getRequestVote();
-    expect(message.proposerId).to.be.eql(10);
-  });
+  // it('should gen correct vote request message', () => {
+  //   var message = proposer.getRequestVote();
+  //   expect(message.proposerId).to.be.eql(10);
+  // });
 
-  it('should accept vote request', () => {
-    var requestVote = new Message.RequestVote(5, true);
-    // var message
-    //   expect(message.proposerId).to.be.eql(5);
-    //   expect(message.granted).to.be.eql(true);
-  });
+  // it('should accept vote request', () => {
+  //   var requestVote = new Message.RequestVote(5, true);
+  //   // var message
+  //   //   expect(message.proposerId).to.be.eql(5);
+  //   //   expect(message.granted).to.be.eql(true);
+  // });
 
-  it('should not accept vote request', () => {
-    // var message = new Message.RequestVote(6, true);
-    // expect(message.proposerId).to.be.eql(6);
-    // expect(message.granted).to.be.eql(false);
-  });
+  // it('should not accept vote request', () => {
+  //   // var message = new Message.RequestVote(6, true);
+  //   // expect(message.proposerId).to.be.eql(6);
+  //   // expect(message.granted).to.be.eql(false);
+  // });
 });

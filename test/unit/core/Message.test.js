@@ -2,31 +2,34 @@ import Message from '../../../src/core/Message';
 
 describe('Message test suite', () => {
   it('class Message.RequestVote should be functional', () => {
-    let message = [Message.TYPE.PROPOSER.REQUEST_VOTE, 10];
+    let message = [Message.TYPE.PROPOSER.REQUEST_VOTE, 3, 10];
     expect(() => {
-      let prepare = new Message.RequestVote(10);
+      let prepare = new Message.RequestVote(3, 10);
       expect(prepare.serialize()).to.be.eql(message);
     }).to.not.throw(Error);
     expect(Message.RequestVote.parse([0])).to.be.eql(null);
     expect(Message.RequestVote.parse([1, 1])).to.be.eql(null);
     expect(Message.RequestVote.parse(message)).to.be.eql({
       type: Message.TYPE.PROPOSER.REQUEST_VOTE,
-      proposerId: 10
+      proposerId: 10,
+      electionTerm: 3
     });
   });
 
-  it('class Message.Vote should be functional', () => {
-    let message = [Message.TYPE.PROPOSER.VOTE, 10, true];
+  it('class Message.RequestVoteReply should be functional', () => {
+    let message = [Message.TYPE.PROPOSER.REQUEST_VOTE_REPLY, 1, 10, true, 2];
     expect(() => {
-      let prepare = new Message.Vote(10, true);
+      let prepare = new Message.RequestVoteReply(1, 10, true, 2);
       expect(prepare.serialize()).to.be.eql(message);
     }).to.not.throw(Error);
-    expect(Message.Vote.parse([0, 1])).to.be.eql(null);
-    expect(Message.Vote.parse([1, 1, 2])).to.be.eql(null);
-    expect(Message.Vote.parse(message)).to.be.eql({
-      type: Message.TYPE.PROPOSER.VOTE,
+    expect(Message.RequestVoteReply.parse([0, 1])).to.be.eql(null);
+    expect(Message.RequestVoteReply.parse([1, 1, 2])).to.be.eql(null);
+    expect(Message.RequestVoteReply.parse(message)).to.be.eql({
+      type: Message.TYPE.PROPOSER.REQUEST_VOTE_REPLY,
       proposerId: 10,
-      granted: true
+      granted: true,
+      electionTerm: 1,
+      from: 2
     });
   });
 
@@ -63,9 +66,9 @@ describe('Message test suite', () => {
   });
 
   it('class Message.Promise should be functional', () => {
-    let message = [Message.TYPE.ACCEPTOR.PROMISE, 1, 2, 3, 4, 5];
+    let message = [Message.TYPE.ACCEPTOR.PROMISE, 1, 2, 3, 4, 5, 6];
     expect(() => {
-      let promise = new Message.Promise(1, 2, 3, 4, 5);
+      let promise = new Message.Promise(1, 2, 3, 4, 5, 6);
       expect(promise.round).to.be.eql(2);
       expect(promise.serialize()).to.be.eql(message);
     }).to.not.throw(Error);
@@ -75,7 +78,8 @@ describe('Message test suite', () => {
       round: 2,
       votedRound: 3,
       votedValue: 4,
-      acceptorId: 5
+      acceptorId: 5,
+      proposerId: 6
     });
   });
 

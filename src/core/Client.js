@@ -9,6 +9,6 @@ export default class Client {
   }
 
   getRequest(data) {
-    return new Message.Request(data);
+    return new Message.Request(data, this.id);
   }
 }

@@ -10,14 +10,16 @@ const TYPE = {
     ACCEPT: 102,
     DECIDE: 103,
     REQUEST_VOTE: 104,
-    VOTE: 105
+    REQUEST_VOTE_REPLY: 105,
+    HEARTBEAT: 106
   },
   ACCEPTOR: { // 201-299
     PROMISE: 201,
     ACCEPTED: 202
   },
   LEARNER: { // 301-399
-    RESPONSE: 301
+    RESPONSE: 301,
+    CATCH_UP: 302
   }
 };
 
@@ -48,37 +50,58 @@ class Message {
 }
 
 class RequestVote extends Message {
-  constructor(proposerId) {
+  constructor(electionTerm, proposerId) {
     super();
     this.type = TYPE.PROPOSER.REQUEST_VOTE;
     this.proposerId = proposerId;
+    this.electionTerm = electionTerm;
   }
   static parse(message) {
-    if (!isValid(message, 2, TYPE.PROPOSER.REQUEST_VOTE)) {
+    if (!isValid(message, 3, TYPE.PROPOSER.REQUEST_VOTE)) {
       return null;
     }
-    return new RequestVote(message[1]);
+    return new RequestVote(message[1], message[2]);
   }
   serialize() {
-    return [this.type, this.proposerId];
+    return [this.type, this.electionTerm, this.proposerId];
   }
 }
 
-class Vote extends Message {
-  constructor(proposerId, granted) {
+class RequestVoteReply extends Message {
+  constructor(electionTerm, proposerId, granted, from) {
     super();
-    this.type = TYPE.PROPOSER.VOTE;
+    this.type = TYPE.PROPOSER.REQUEST_VOTE_REPLY;
     this.proposerId = proposerId;
     this.granted = granted;
+    this.electionTerm = electionTerm;
+    this.from = from;
   }
   static parse(message) {
-    if (!isValid(message, 3, TYPE.PROPOSER.VOTE)) {
+    if (!isValid(message, 5, TYPE.PROPOSER.REQUEST_VOTE_REPLY)) {
       return null;
     }
-    return new Vote(message[1], message[2]);
+    return new RequestVoteReply(message[1], message[2], message[3], message[4]);
   }
   serialize() {
-    return [this.type, this.proposerId, this.granted];
+    return [this.type, this.electionTerm, this.proposerId, this.granted, this.from];
+  }
+}
+
+class Heartbeat extends Message {
+  constructor(electionTerm, proposerId) {
+    super();
+    this.type = TYPE.PROPOSER.HEARTBEAT;
+    this.proposerId = proposerId;
+    this.electionTerm = electionTerm;
+  }
+  static parse(message) {
+    if (!isValid(message, 3, TYPE.PROPOSER.HEARTBEAT)) {
+      return null;
+    }
+    return new RequestVoteReply(message[1], message[2]);
+  }
+  serialize() {
+    return [this.type, this.electionTerm, this.proposerId];
   }
 }
 
@@ -122,7 +145,7 @@ class Accept extends Message {
 }
 
 class Promise extends Message {
-  constructor(proposeId, round, votedRound, votedValue, acceptorId) {
+  constructor(proposeId, round, votedRound, votedValue, acceptorId, proposerId) {
     super();
     this.type = TYPE.ACCEPTOR.PROMISE;
     this.proposeId = proposeId;
@@ -130,15 +153,16 @@ class Promise extends Message {
     this.votedRound = votedRound;
     this.votedValue = votedValue;
     this.acceptorId = acceptorId;
+    this.proposerId = proposerId;
   }
   static parse(message) {
-    if (!isValid(message, 6, TYPE.ACCEPTOR.PROMISE)) {
+    if (!isValid(message, 7, TYPE.ACCEPTOR.PROMISE)) {
       return null;
     }
-    return new Promise(message[1], message[2], message[3], message[4], message[5]);
+    return new Promise(message[1], message[2], message[3], message[4], message[5], message[6]);
   }
   serialize() {
-    return [this.type, this.proposeId, this.round, this.votedRound, this.votedValue, this.acceptorId];
+    return [this.type, this.proposeId, this.round, this.votedRound, this.votedValue, this.acceptorId, this.proposerId];
   }
 }
 
@@ -163,20 +187,21 @@ class Accepted extends Message {
 }
 
 class Request extends Message {
-  constructor(data) {
+  constructor(data, clientId) {
     super();
     this.type = TYPE.CLIENT.REQUEST;
     this.data = data;
+    this.clientId = clientId;
   }
 
   static parse(message) {
-    if (!isValid(message, 2, TYPE.CLIENT.REQUEST)) {
+    if (!isValid(message, 3, TYPE.CLIENT.REQUEST)) {
       return null;
     }
-    return new Request(message[1]);
+    return new Request(message[1], message[2]);
   }
   serialize() {
-    return [this.type, this.data];
+    return [this.type, this.data, this.clientId];
   }
 }
 
@@ -199,6 +224,24 @@ class Response extends Message {
   }
 }
 
+class CatchUp extends Message {
+  constructor(missingProposals) {
+    super();
+    this.type = TYPE.LEARNER.CATCH_UP;
+    this.missingProposals = missingProposals;
+  }
+
+  static parse(message) {
+    if (!isValid(message, 2, TYPE.LEARNER.CATCH_UP)) {
+      return null;
+    }
+    return new CatchUp(message[1]);
+  }
+  serialize() {
+    return [this.type, this.missingProposals];
+  }
+}
+
 export default {
-  RequestVote, Vote, Prepare, Accept, Promise, Accepted, Request, Response, TYPE
+  RequestVote, RequestVoteReply, Heartbeat, Prepare, Accept, Promise, Accepted, Request, Response, CatchUp, TYPE
 };

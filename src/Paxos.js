@@ -3,81 +3,138 @@ import ProposerNode from './ProposerNode';
 import LearnerNode from './LearnerNode';
 import ClientNode from './ClientNode';
 import Logger from './Logger';
+import Utils from './Utils';
 import SystemConfig from './Config';
 import _ from 'lodash';
 
-let log = Logger.getLogger(module);
 export default opt => {
+  let logger = Logger.getLogger(module);
+  let multiStart = true;
+  let id = -1;
+  let valueCount = parseInt(opt.value, 10);
+  let file = opt.file;
+  if (opt.id) {
+    id = opt.id;
+    multiStart = false;
+  }
   switch (opt.role) {
     case 'acceptors':
       let acceptors = [];
       let aMul = SystemConfig.getMulticastGroup('acceptors');
-      _.each(SystemConfig.getGroup('acceptors'), acceptor => {
-        let options = _.assign(acceptor, {
-          multicast: aMul
-        });
+      let aIndex = 0;
+      let nodeCount = 0;
+      if (multiStart) {
+        nodeCount = SystemConfig.getGroupCount('acceptors');
+      } else {
+        nodeCount = 1;
+      }
+      for (let i = 0; i < nodeCount; i++) {
+        let options = {
+          multicast: aMul,
+          id: 'a-' + (multiStart ? aIndex++ : id)
+        };
         let a = new AcceptorNode(options);
         acceptors.push(a.start());
-      });
+      }
       Promise.all(acceptors).then(() => {
-        log.info('All acceptor started');
+        logger.info('All acceptor started');
       });
       break;
     case 'learners':
       let learners = [];
       let lMul = SystemConfig.getMulticastGroup('learners');
-      _.each(SystemConfig.getGroup('learners'), learner => {
-        let options = _.assign(learner, {
+      let lIndex = 0;
+      if (multiStart) {
+        nodeCount = SystemConfig.getGroupCount('learners');
+      } else {
+        nodeCount = 1;
+      }
+      for (let i = 0; i < nodeCount; i++) {
+        let options = {
           multicast: lMul,
-          quorum: SystemConfig.getQuorum(),
-          calRate: true
-        });
+          quorum: SystemConfig.getAcceptorQuorum(),
+          calRate: true,
+          minProposalId: SystemConfig.getMinProposalId(),
+          id: 'l-' + (multiStart ? lIndex++ : id)
+        };
         let l = new LearnerNode(options);
         learners.push(l.start());
-      });
+      }
       Promise.all(learners).then(() => {
-        log.info('All learner started');
+        logger.info('All learner started');
       });
       break;
     case 'proposers':
       let proposers = [];
       let pMul = SystemConfig.getMulticastGroup('proposers');
-      _.each(SystemConfig.getGroup('proposers'), proposer => {
-        let options = _.assign(proposer, {
+      let pIndex = 0;
+      if (multiStart) {
+        nodeCount = SystemConfig.getGroupCount('proposers');
+      } else {
+        nodeCount = 1;
+      }
+      for (let i = 0; i < nodeCount; i++) {
+        let options = {
           multicast: pMul,
-          quorum: SystemConfig.getQuorum()
-        });
+          acceptorQuorum: SystemConfig.getAcceptorQuorum(),
+          proposerQuorum: SystemConfig.getProposerQuorum(),
+          minProposalId: SystemConfig.getMinProposalId(),
+          id: 'p-' + (multiStart ? pIndex++ : id)
+        };
         let c = new ProposerNode(options);
         proposers.push(c.start());
-      });
+      }
+
       Promise.all(proposers).then(() => {
-        log.info('All coordinator started');
+        logger.info('All coordinator started');
       });
       break;
     case 'clients':
       let clientsStarting = [];
       let clients = [];
       let cMul = SystemConfig.getMulticastGroup('clients');
-      _.each(SystemConfig.getGroup('clients'), client => {
-        let options = _.assign(client, {
-          multicast: cMul
-        });
+      let cIndex = 0;
+      if (multiStart) {
+        nodeCount = SystemConfig.getGroupCount('clients');
+      } else {
+        nodeCount = 1;
+      }
+      for (let i = 0; i < nodeCount; i++) {
+        let options = {
+          multicast: cMul,
+          id: 'c-' + (multiStart ? cIndex++ : id)
+        };
         let c = new ClientNode(options);
         clients.push(c);
         clientsStarting.push(c.start());
-      });
+      }
       Promise.all(clientsStarting).then(() => {
-        log.info('All client started started');
+        logger.info('All client started started');
         _.each(clients, client => {
-          let x = 0;
-          setInterval(() => {
-            // let x = Math.floor(Math.random() * (10000 - 1 + 1)) + 1;
-            x += 1;
-            client.request(x);
-          }, 0);
+          if (valueCount === 0) {
+            setInterval(() => {
+              let x = Utils.getRandomString(8);
+              console.log(x);
+              client.request(x);
+            }, 0);
+          } else {
+            var readline = require('readline');
+            var rl = readline.createInterface({
+              input: process.stdin,
+              output: process.stdout,
+              terminal: false
+            });
+            let count = 0;
+            rl.on('line', function(line) {
+              if (line.length) {
+                setTimeout(() => {
+                  client.request(line);
+                }, 3 * ++count);
+              }
+            });
+          }
         });
       });
-
       break;
     default:
       break;

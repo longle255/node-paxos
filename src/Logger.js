@@ -22,7 +22,7 @@ winston.addColors({
 winston.remove(winston.transports.Console);
 
 winston.add(winston.transports.Console, {
-  level: 'info',
+  level: 'error',
   colorize: true
 });
 
@@ -32,7 +32,8 @@ winston.add(winston.transports.Console, {
  * @return {logger} logger instance
  */
 
-winston.getLogger = module => {
+winston.getLogger = (module, suffix) => {
+
   if (!module) {
     module = 'generic';
   } else if (typeof module !== 'string') {
@@ -40,20 +41,34 @@ winston.getLogger = module => {
   }
   let sysConf = SystemConfig.getLogConfig(module);
   let rootDir = process.env.PAXOS_ROOT_DIR || path.join(__dirname, '../');
+  if (suffix) {
+    suffix = ` ${suffix}`;
+  } else {
+    suffix = '';
+  }
+
   let defaults = {
     'console': {
-      level: 'debug',
+      level: 'error',
       colorize: true,
-      label: module
+      label: module + suffix
     },
     'file': {
       'filename': path.join(rootDir, './logs/output.log')
     }
   };
-  let conf = _.assign(defaults, sysConf);
+  let tmp = _.cloneDeep(sysConf);
+  if (tmp && tmp.console && tmp.console.label) {
+    tmp.console.label = tmp.console.label + suffix;
+  }
+  if (suffix.length) {
+    module = module + suffix;
+  }
+  let conf = _.assign(defaults, tmp);
   winston.loggers.add(module, conf);
   return winston.loggers.get(module);
 };
 
 // export
-module.exports = winston;
+// module.exports = winston;
+export default winston;

@@ -4,7 +4,7 @@ import Message from './core/Message';
 import Logger from './Logger';
 import SystemConfig from './Config';
 
-let log = Logger.getLogger(module);
+let logger = Logger.getLogger(module);
 export default class ClientNode extends Client {
   constructor(options) {
     super(options);
@@ -18,24 +18,24 @@ export default class ClientNode extends Client {
   }
 
   start() {
-    log.debug('attempt to start Client' + this.id);
+    logger.debug('attempt to start Client' + this.id);
     return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
   }
 
   stop() {
-    log.debug('attempt to stop Client' + this.id);
+    logger.debug('attempt to stop Client' + this.id);
     return Promise.all([this.multicast.receiver.stop(), this.multicast.sender.stop()]);
   }
 
   request(message) {
     var request = this.getRequest(message);
     var dest = SystemConfig.getMulticastGroup('proposers');
-    log.debug(`sending request message ${JSON.stringify(request)} to ${JSON.stringify(dest)}`);
+    logger.debug(`sending request message ${JSON.stringify(request)} to ${JSON.stringify(dest)}`);
     this.multicast.sender.send(dest, request);
   }
 
   onResponse(message, source) {
     message = Message.Response.parse(message);
-    log.debug(`receive response message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
+    logger.debug(`receive response message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
   }
 }

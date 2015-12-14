@@ -67,6 +67,9 @@ class Receiver {
 
   stop() {
     return new Promise((resolve, reject) => {
+      if (!this.isRunning) {
+        return resolve();
+      }
       this.server.close(err => {
         if (err) {
           return reject(err);
@@ -111,6 +114,9 @@ class Sender {
 
   stop() {
     return new Promise((resolve, reject) => {
+      if (!this.isRunning) {
+        return resolve();
+      }
       this.server.close(err => {
         if (err) {
           return reject(err);

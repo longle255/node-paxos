@@ -8,17 +8,15 @@ let multicastSender;
 
 let proposerGroup = SystemConfig.getMulticastGroup('proposers');
 let clientGroup = SystemConfig.getMulticastGroup('clients');
-
+console.log(proposerGroup);
 describe('ProposerNode test suite', () => {
   before(done => {
     proposerNode = new ProposerNode({
       multicast: proposerGroup,
       id: 10001,
-      quorum: 1,
-      address: '127.0.0.1',
-      port: 10001
+      acceptorQuorum: 1
     });
-
+    proposerNode.state = 2;
     multicastSender = new Multicast.Sender(clientGroup);
     Promise.all([proposerNode.start(), multicastSender.start()])
       .then(() => done());

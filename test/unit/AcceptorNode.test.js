@@ -9,7 +9,6 @@ let multicastSender;
 let proposerGroup = SystemConfig.getMulticastGroup('proposers');
 let acceptorGroup = SystemConfig.getMulticastGroup('acceptors');
 
-
 describe('AcceptorNode test suite', () => {
   before(done => {
     acceptorNode = new AcceptorNode({

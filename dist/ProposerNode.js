@@ -47,10 +47,10 @@ var PROPOSER_STATE = {
   FOLLOWER: 1,
   LEADER: 2
 };
-var HEARTBEAT_TIMEOUT = 500;
-var HEARTBEAT_INTERVAL = 200;
-var MIN_ELECTION_LATENCY = 50;
-var MAX_ELECTION_LATENCY = 150;
+var HEARTBEAT_TIMEOUT = 500 * process.env.PAXOS_DELAY;
+var HEARTBEAT_INTERVAL = 200 * process.env.PAXOS_DELAY;
+var MIN_ELECTION_LATENCY = 50 * process.env.PAXOS_DELAY;
+var MAX_ELECTION_LATENCY = 150 * process.env.PAXOS_DELAY;
 
 var ProposerNode = (function (_Proposer) {
   _inherits(ProposerNode, _Proposer);
@@ -232,9 +232,6 @@ var ProposerNode = (function (_Proposer) {
   }, {
     key: 'requestVote',
     value: function requestVote() {
-      // this.electionTerm += 1;
-      // this.votedFor = this.id;
-      // this.voteGranted = [this.id];
       this.state = PROPOSER_STATE.CANDIDATE;
       var message = new _Message2.default.RequestVote(this.electionTerm + 1, this.id);
       var dest = _Config2.default.getMulticastGroup('proposers');
@@ -245,7 +242,6 @@ var ProposerNode = (function (_Proposer) {
     key: 'onRequest',
     value: function onRequest(message, source) {
       if (this.isLeader()) {
-        // console.log(message);
         message = _Message2.default.Request.parse(message);
         this.logger.debug('receive request message ' + JSON.stringify(message) + ' from ' + source.address + ':' + source.port);
         this.addRequest(message);
@@ -287,15 +283,15 @@ var ProposerNode = (function (_Proposer) {
     key: 'onLearnerCatchUp',
     value: function onLearnerCatchUp(message, source) {
       message = _Message2.default.CatchUp.parse(message);
-      if (this.isLeader) {
+      if (this.isLeader()) {
         this.logger.debug('receive catch up message ' + JSON.stringify(message) + ' from learner ' + source.address + ':' + source.port);
         this.catchUpQueue = _lodash2.default.union(this.catchUpQueue, message.missingProposals);
-      }
-      while (this.catchUpQueue.length > 0) {
-        var prepare = this.getNextPrepare(this.catchUpQueue.shift());
-        var dest = _Config2.default.getMulticastGroup('acceptors');
-        this.logger.debug('sending catchup prepare message ' + JSON.stringify(prepare) + ' to ' + JSON.stringify(dest));
-        this.multicast.sender.send(dest, prepare);
+        while (this.catchUpQueue.length > 0) {
+          var prepare = this.getNextPrepare(this.catchUpQueue.shift());
+          var dest = _Config2.default.getMulticastGroup('acceptors');
+          this.logger.debug('sending catchup prepare message ' + JSON.stringify(prepare) + ' to ' + JSON.stringify(dest));
+          this.multicast.sender.send(dest, prepare);
+        }
       }
     }
   }]);

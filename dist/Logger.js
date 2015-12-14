@@ -41,7 +41,7 @@ _winston2.default.addColors({
 _winston2.default.remove(_winston2.default.transports.Console);
 
 _winston2.default.add(_winston2.default.transports.Console, {
-  level: 'error',
+  level: process.env.PAXOS_LOGGING || 'error',
   colorize: true
 });
 
@@ -68,7 +68,7 @@ _winston2.default.getLogger = function (module, suffix) {
 
   var defaults = {
     'console': {
-      level: 'error',
+      level: process.env.PAXOS_LOGGING || 'error',
       colorize: true,
       label: module + suffix
     },
@@ -80,10 +80,15 @@ _winston2.default.getLogger = function (module, suffix) {
   if (tmp && tmp.console && tmp.console.label) {
     tmp.console.label = tmp.console.label + suffix;
   }
+
   if (suffix.length) {
     module = module + suffix;
   }
   var conf = _lodash2.default.assign(defaults, tmp);
+  if (process.env.PAXOS_LOGGING && conf.console.label.indexOf('MULTICAST') === -1) {
+    conf.console.level = process.env.PAXOS_LOGGING;
+  }
+
   _winston2.default.loggers.add(module, conf);
   return _winston2.default.loggers.get(module);
 };

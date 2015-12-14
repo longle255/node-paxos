@@ -94,6 +94,9 @@ var Receiver = (function () {
       var _this2 = this;
 
       return new Promise(function (resolve, reject) {
+        if (!_this2.isRunning) {
+          return resolve();
+        }
         _this2.server.close(function (err) {
           if (err) {
             return reject(err);
@@ -150,6 +153,9 @@ var Sender = (function () {
       var _this4 = this;
 
       return new Promise(function (resolve, reject) {
+        if (!_this4.isRunning) {
+          return resolve();
+        }
         _this4.server.close(function (err) {
           if (err) {
             return reject(err);

@@ -54,6 +54,10 @@ var LearnerNode = (function (_Learner) {
     _this.calRate = options.calRate || false;
     _this.checkCatchUp = false;
     _this.runningCatchUp = false;
+    _this.httpServer = null;
+
+    _this.latencyAggregate = 0;
+    // this.setupHttpServer();
     return _this;
   }
 
@@ -66,8 +70,11 @@ var LearnerNode = (function (_Learner) {
       var tmp = 0;
       if (this.calRate) {
         this.rateInterval = setInterval(function () {
-          _this2.logger.info('rate ' + (_this2.acceptedCount - tmp) + ' - ' + _this2.acceptedCount + ' proposed value');
+          var rate = _this2.acceptedCount - tmp;
+          var latency = _this2.latencyAggregate / rate;
+          _this2.logger.info('rate ' + rate + ' proposed value, at latency ' + latency.toFixed(2));
           tmp = _this2.acceptedCount;
+          _this2.latencyAggregate = 0;
         }, 1000);
       }
       return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
@@ -95,14 +102,20 @@ var LearnerNode = (function (_Learner) {
           // finish catching up
           this.runningCatchUp = false;
           for (var i = this.minProposalId; i <= this.currentMaxProposalId; i++) {
-            console.log(this.delivered[i]);
+            if (process.env.PAXOS_MODE === 'test') {
+              console.log(this.delivered[i]);
+            }
           }
         } else if (!this.runningCatchUp) {
-          console.log(decision.value);
+          if (process.env.PAXOS_MODE === 'test') {
+            console.log(decision.value);
+          }
         }
-        // this.logger.debug(`decision ${JSON.stringify(decision)}`);
-        // console.log(decision.value);
-        // this.acceptedCount += 1;
+        this.logger.debug('decision ' + JSON.stringify(decision));
+        if (this.calRate) {
+          this.acceptedCount += 1;
+          this.latencyAggregate += Date.now() - parseInt(decision.value, 10);
+        }
       }
     }
   }, {

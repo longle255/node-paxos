@@ -42,7 +42,7 @@ exports.default = function (opt) {
   var logger = _Logger2.default.getLogger(module);
   var multiStart = true;
   var id = -1;
-  var valueCount = parseInt(opt.value, 10);
+  var delay = parseInt(opt.delay, 10);
   var file = opt.file;
   if (opt.id) {
     id = opt.id;
@@ -84,7 +84,7 @@ exports.default = function (opt) {
         var options = {
           multicast: lMul,
           quorum: _Config2.default.getAcceptorQuorum(),
-          calRate: true,
+          calRate: process.env.PAXOS_MODE === 'benchmark',
           minProposalId: _Config2.default.getMinProposalId(),
           id: 'l-' + (multiStart ? lIndex++ : id)
         };
@@ -142,12 +142,17 @@ exports.default = function (opt) {
       Promise.all(clientsStarting).then(function () {
         logger.info('All client started started');
         _lodash2.default.each(clients, function (client) {
-          if (valueCount === 0) {
+          if (process.env.PAXOS_MODE === 'demo' || process.env.PAXOS_MODE === 'benchmark') {
+            var x = 0;
             setInterval(function () {
-              var x = _Utils2.default.getRandomString(8);
-              console.log(x);
+              if (process.env.PAXOS_MODE === 'benchmark') {
+                x = Date.now();
+              } else {
+                x += 1;
+                console.log(x);
+              }
               client.request(x);
-            }, 0);
+            }, delay);
           } else {
             var readline;
             var rl;
@@ -165,7 +170,7 @@ exports.default = function (opt) {
                 if (line.length) {
                   setTimeout(function () {
                     client.request(line);
-                  }, 3 * ++count);
+                  }, 2 * ++count);
                 }
               });
             })();

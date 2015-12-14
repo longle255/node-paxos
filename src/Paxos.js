@@ -11,7 +11,7 @@ export default opt => {
   let logger = Logger.getLogger(module);
   let multiStart = true;
   let id = -1;
-  let valueCount = parseInt(opt.value, 10);
+  let delay = parseInt(opt.delay, 10);
   let file = opt.file;
   if (opt.id) {
     id = opt.id;
@@ -53,7 +53,7 @@ export default opt => {
         let options = {
           multicast: lMul,
           quorum: SystemConfig.getAcceptorQuorum(),
-          calRate: true,
+          calRate: process.env.PAXOS_MODE === 'benchmark',
           minProposalId: SystemConfig.getMinProposalId(),
           id: 'l-' + (multiStart ? lIndex++ : id)
         };
@@ -111,12 +111,17 @@ export default opt => {
       Promise.all(clientsStarting).then(() => {
         logger.info('All client started started');
         _.each(clients, client => {
-          if (valueCount === 0) {
+          if (process.env.PAXOS_MODE === 'demo' || process.env.PAXOS_MODE === 'benchmark') {
+            var x = 0;
             setInterval(() => {
-              let x = Utils.getRandomString(8);
-              console.log(x);
+              if (process.env.PAXOS_MODE === 'benchmark') {
+                x = Date.now();
+              } else {
+                x += 1;
+                console.log(x);
+              }
               client.request(x);
-            }, 0);
+            }, delay);
           } else {
             var readline = require('readline');
             var rl = readline.createInterface({
@@ -129,7 +134,7 @@ export default opt => {
               if (line.length) {
                 setTimeout(() => {
                   client.request(line);
-                }, 3 * ++count);
+                }, 2 * ++count);
               }
             });
           }

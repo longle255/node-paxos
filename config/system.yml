@@ -2,7 +2,7 @@
   acceptorQuorum: 2
   proposerQuorum: 2
   proposers: 2
-  acceptors: 3
-  learners: 2
-  clients: 2
+  acceptors: 2
+  learners: 1
+  clients: 7
   minProposalId: 1

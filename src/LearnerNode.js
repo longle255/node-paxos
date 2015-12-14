@@ -19,6 +19,10 @@ export default class LearnerNode extends Learner {
     this.calRate = options.calRate || false;
     this.checkCatchUp = false;
     this.runningCatchUp = false;
+    this.httpServer = null;
+
+    this.latencyAggregate = 0;
+    // this.setupHttpServer();
   }
 
   start() {
@@ -26,8 +30,11 @@ export default class LearnerNode extends Learner {
     var tmp = 0;
     if (this.calRate) {
       this.rateInterval = setInterval(() => {
-        this.logger.info(`rate ${this.acceptedCount - tmp} - ${this.acceptedCount} proposed value`);
+        let rate = this.acceptedCount - tmp;
+        let latency = this.latencyAggregate / rate;
+        this.logger.info(`rate ${rate} proposed value, at latency ${latency.toFixed(2)}`);
         tmp = this.acceptedCount;
+        this.latencyAggregate = 0;
       }, 1000);
     }
     return Promise.all([this.multicast.receiver.start(), this.multicast.sender.start()]);
@@ -52,14 +59,20 @@ export default class LearnerNode extends Learner {
       if (this.runningCatchUp && this.getMissingProposals().length === 0) { // finish catching up
         this.runningCatchUp = false;
         for (let i = this.minProposalId; i <= this.currentMaxProposalId; i++) {
-          console.log(this.delivered[i]);
+          if (process.env.PAXOS_MODE === 'test') {
+            console.log(this.delivered[i]);
+          }
         }
       } else if (!this.runningCatchUp) {
-        console.log(decision.value);
+        if (process.env.PAXOS_MODE === 'test') {
+          console.log(decision.value);
+        }
       }
-      // this.logger.debug(`decision ${JSON.stringify(decision)}`);
-      // console.log(decision.value);
-      // this.acceptedCount += 1;
+      this.logger.debug(`decision ${JSON.stringify(decision)}`);
+      if (this.calRate) {
+        this.acceptedCount += 1;
+        this.latencyAggregate += Date.now() - parseInt(decision.value, 10);
+      }
     }
   }
 

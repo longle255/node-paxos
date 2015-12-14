@@ -171,9 +171,6 @@ export default class ProposerNode extends Proposer {
   }
 
   requestVote() {
-    // this.electionTerm += 1;
-    // this.votedFor = this.id;
-    // this.voteGranted = [this.id];
     this.state = PROPOSER_STATE.CANDIDATE;
     let message = new Message.RequestVote(this.electionTerm + 1, this.id);
     let dest = SystemConfig.getMulticastGroup('proposers');
@@ -183,7 +180,6 @@ export default class ProposerNode extends Proposer {
 
   onRequest(message, source) {
     if (this.isLeader()) {
-      // console.log(message);
       message = Message.Request.parse(message);
       this.logger.debug(`receive request message ${JSON.stringify(message)} from ${source.address}:${source.port}`);
       this.addRequest(message);

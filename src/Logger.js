@@ -22,7 +22,7 @@ winston.addColors({
 winston.remove(winston.transports.Console);
 
 winston.add(winston.transports.Console, {
-  level: 'error',
+  level: process.env.PAXOS_LOGGING || 'error',
   colorize: true
 });
 
@@ -49,7 +49,7 @@ winston.getLogger = (module, suffix) => {
 
   let defaults = {
     'console': {
-      level: 'error',
+      level: process.env.PAXOS_LOGGING || 'error',
       colorize: true,
       label: module + suffix
     },
@@ -61,10 +61,15 @@ winston.getLogger = (module, suffix) => {
   if (tmp && tmp.console && tmp.console.label) {
     tmp.console.label = tmp.console.label + suffix;
   }
+
   if (suffix.length) {
     module = module + suffix;
   }
   let conf = _.assign(defaults, tmp);
+  if (process.env.PAXOS_LOGGING && conf.console.label.indexOf('MULTICAST') === -1) {
+    conf.console.level = process.env.PAXOS_LOGGING;
+  }
+
   winston.loggers.add(module, conf);
   return winston.loggers.get(module);
 };

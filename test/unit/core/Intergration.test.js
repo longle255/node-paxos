@@ -3,12 +3,13 @@ import Client from '../../../src/core/Client';
 import Learner from '../../../src/core/Learner';
 import Proposer from '../../../src/core/Proposer';
 import Message from '../../../src/core/Message';
-
+import SystemConfig from '../../../src/Config';
 describe('Integration test suite', () => {
   it('should run the happy path', () => {
     let proposer = new Proposer({
       id: 10,
-      quorum: 2
+      acceptorQuorum: 2,
+      minProposalId: SystemConfig.getMinProposalId()
     });
     let acceptor1 = new Acceptor({
       id: 21

@@ -4,10 +4,6 @@ describe('SystemConfig test suite', () => {
     expect(SystemConfig.config.system).to.be.exist;
   });
 
-  it('should return correct host', () => {
-    expect(SystemConfig.getNode(10001).port).to.be.eql(10001);
-  });
-
   it('should return correct logger config', function() {
     let conf = SystemConfig.getLogConfig('Multicast.js');
     expect(conf.console.label).to.be.equal('MULTICAST');

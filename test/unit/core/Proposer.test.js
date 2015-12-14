@@ -1,13 +1,16 @@
 import Proposer from '../../../src/core/Proposer';
 import Message from '../../../src/core/Message';
+import SystemConfig from '../../../src/Config';
 
 var proposer;
 describe('Proposer test suite', () => {
   beforeEach(() => {
     proposer = new Proposer({
       id: 10,
-      quorum: 2
+      quorum: 2,
+      minProposalId: SystemConfig.getMinProposalId()
     });
+    proposer.state = 2; // PROPOSER_STATE.LEADER;
     let request = new Message.Request(100);
     proposer.addRequest(new Message.Request(100));
     proposer.addRequest(new Message.Request(200));
@@ -42,29 +45,30 @@ describe('Proposer test suite', () => {
   });
 
   it('should return getAccept with quorum of 1', () => {
-    proposer.quorum = 1;
-    let prepare = proposer.getNextPrepare();
-    let accept = proposer.getAccept(prepare);
+    proposer.acceptorQuorum = 1;
+    let promise = new Message.Promise(3, 1, 0, null, 1, proposer.id); // proposeId, round, votedRound, votedValue, acceptorId, proposerId
+    let accept = proposer.getAccept(promise);
     expect(accept).to.be.eql({
-      proposeId: 1,
-      proposerId: 10,
+      proposeId: 3,
+      proposerId: proposer.id,
       type: Message.TYPE.PROPOSER.ACCEPT,
-      round: 0,
+      round: 1,
       value: 100
     });
   });
 
   it('should return getAccept with quorum of 2', () => {
-    let promise = new Message.Promise(3, 1, 0, null, 1);
+    proposer.acceptorQuorum = 2;
+    let promise = new Message.Promise(3, 1, 0, null, 1, proposer.id); // proposeId, round, votedRound, votedValue, acceptorId, proposerId
     let accept = proposer.getAccept(promise);
     expect(accept).to.not.exist;
     // check value in proposer
     expect(proposer.backlog[3].promisedAcceptors.length).to.be.eql(1);
-    promise = new Message.Promise(3, 1, 0, null, 2); // another promise from acceptor 2
+    promise = new Message.Promise(3, 1, 0, null, 2, proposer.id); // proposeId, round, votedRound, votedValue, acceptorId, proposerId // another promise from acceptor 2
     accept = proposer.getAccept(promise);
     expect(accept).to.be.eql({
       proposeId: 3,
-      proposerId: 10,
+      proposerId: proposer.id,
       type: Message.TYPE.PROPOSER.ACCEPT,
       round: 1,
       value: 100

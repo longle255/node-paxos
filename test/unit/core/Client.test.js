@@ -17,7 +17,7 @@ describe('Client test suite', () => {
   it('should gen correct request message', () => {
     let request = client.getRequest(100);
     expect(request.data).to.be.eql(100);
-    expect(request.serialize()).to.be.eql([Message.TYPE.CLIENT.REQUEST, 100]);
+    expect(request.serialize()).to.be.eql([Message.TYPE.CLIENT.REQUEST, 100, client.id]);
   });
 
 });

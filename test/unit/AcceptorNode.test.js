@@ -9,7 +9,7 @@ let multicastSender;
 let proposerGroup = SystemConfig.getMulticastGroup('proposers');
 let acceptorGroup = SystemConfig.getMulticastGroup('acceptors');
 
-let proposerHost = (SystemConfig.getGroup('proposers'))[0];
+
 describe('AcceptorNode test suite', () => {
   before(done => {
     acceptorNode = new AcceptorNode({
@@ -31,7 +31,7 @@ describe('AcceptorNode test suite', () => {
   });
 
   it('should be able to listen to prepare message', done => {
-    let prepare = new Message.Prepare(9999, 0, proposerHost.id);
+    let prepare = new Message.Prepare(9999, 0, 1); // message prepare with proposeId 9999, round 0, proposerId 1
     multicastSender.send(acceptorGroup, prepare);
     // TODO: check if onPrepare called
     done();

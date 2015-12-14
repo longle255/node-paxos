@@ -65,18 +65,18 @@ gulp.task('build', ['lint-src', 'clean'], function() {
 
 function test() {
   return gulp.src(['test/init.test.js', 'test/unit/**/*.js'], {
-      read: false
-    })
-    .pipe($.plumber())
-    .pipe($.mocha({
-      reporter: 'spec',
-      globals: [
-        'stub',
-        'spy',
-        'expect'
-      ],
-      timeout: 10000
-    }));
+    read: false
+  })
+  .pipe($.plumber())
+  .pipe($.mocha({
+    reporter: 'spec',
+    globals: [
+      'stub',
+      'spy',
+      'expect'
+    ],
+    timeout: 10000
+  }));
 }
 
 // Make babel preprocess the scripts the user tries to import from here on.

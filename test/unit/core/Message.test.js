@@ -100,25 +100,26 @@ describe('Message test suite', () => {
   });
 
   it('class Message.Request should be functional', () => {
-    let message = [Message.TYPE.CLIENT.REQUEST, 100];
+    let message = [Message.TYPE.CLIENT.REQUEST, 100, 1];
     expect(() => {
-      let request = new Message.Request(100);
+      let request = new Message.Request(100, 1);
       expect(request.data).to.be.eql(100);
       expect(request.serialize()).to.be.eql(message);
     }).to.not.throw(Error);
     expect(Message.Request.parse(message)).to.be.eql({
       type: Message.TYPE.CLIENT.REQUEST,
-      data: 100
+      data: 100,
+      clientId: 1
     });
 
     // request with object data
     message = [Message.TYPE.CLIENT.REQUEST, {
       a: 100
-    }];
+    }, 1];
     expect(() => {
       let request = new Message.Request({
         a: 100
-      });
+      }, 1);
       expect(request.data).to.be.eql({
         a: 100
       });
@@ -128,7 +129,8 @@ describe('Message test suite', () => {
       type: Message.TYPE.CLIENT.REQUEST,
       data: {
         a: 100
-      }
+      },
+      clientId: 1
     });
   });
 

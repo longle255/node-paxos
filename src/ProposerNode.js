@@ -11,10 +11,10 @@ const PROPOSER_STATE = {
   FOLLOWER: 1,
   LEADER: 2
 };
-const HEARTBEAT_TIMEOUT = 500;
-const HEARTBEAT_INTERVAL = 200;
-const MIN_ELECTION_LATENCY = 50;
-const MAX_ELECTION_LATENCY = 150;
+const HEARTBEAT_TIMEOUT = 500 * process.env.PAXOS_DELAY;
+const HEARTBEAT_INTERVAL = 200 * process.env.PAXOS_DELAY;
+const MIN_ELECTION_LATENCY = 50 * process.env.PAXOS_DELAY;
+const MAX_ELECTION_LATENCY = 150 * process.env.PAXOS_DELAY;
 
 export default class ProposerNode extends Proposer {
   constructor(options) {
@@ -215,15 +215,15 @@ export default class ProposerNode extends Proposer {
 
   onLearnerCatchUp(message, source) {
     message = Message.CatchUp.parse(message);
-    if (this.isLeader) {
+    if (this.isLeader()) {
       this.logger.debug(`receive catch up message ${JSON.stringify(message)} from learner ${source.address}:${source.port}`);
       this.catchUpQueue = _.union(this.catchUpQueue, message.missingProposals);
-    }
-    while (this.catchUpQueue.length > 0) {
-      let prepare = this.getNextPrepare(this.catchUpQueue.shift());
-      let dest = SystemConfig.getMulticastGroup('acceptors');
-      this.logger.debug(`sending catchup prepare message ${JSON.stringify(prepare)} to ${JSON.stringify(dest)}`);
-      this.multicast.sender.send(dest, prepare);
+      while (this.catchUpQueue.length > 0) {
+        let prepare = this.getNextPrepare(this.catchUpQueue.shift());
+        let dest = SystemConfig.getMulticastGroup('acceptors');
+        this.logger.debug(`sending catchup prepare message ${JSON.stringify(prepare)} to ${JSON.stringify(dest)}`);
+        this.multicast.sender.send(dest, prepare);
+      }
     }
   }
 

@@ -45,6 +45,12 @@ if (program.mode) {
   process.env.PAXOS_MODE = 'test';
 }
 
+if (program.delay) {
+  process.env.PAXOS_DELAY = program.delay;
+} else {
+  process.env.PAXOS_DELAY = 1;
+}
+
 var Paxos;
 if (process.env.USER === 'longle') {
   Paxos = require('./src/Paxos.js');
